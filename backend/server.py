@@ -94,7 +94,7 @@ def get_db_connection():
                                                     cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
                                                     cur.execute(sql, params)
                                                     if not 'SELECT' in sql.upper(): conn.commit()
-                                                                        return cur
+                                                                                  return cur
                                                 conn.execute = pg_execute
                             return conn
     else:
