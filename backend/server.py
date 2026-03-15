@@ -25,6 +25,11 @@ try:
 except ImportError:
     HAS_POSTGRES = False
 
+try:
+    from curl_cffi import requests as c_requests
+except ImportError:
+    c_requests = requests # Fallback to standard requests if curl_cffi fails
+
 def log_debug(msg):
     with open("debug_log.txt", "a", encoding="utf-8") as f:
         f.write(str(msg) + "\n")
@@ -83,24 +88,40 @@ class SecurityManager:
 security = SecurityManager()
 
 def get_db_connection():
-        db_url = os.environ.get('DATABASE_URL')
-        if db_url and HAS_POSTGRES:
-                    try:
-                                    conn = psycopg2.connect(db_url)
-                                    if not hasattr(conn, 'execute'):
-                                                        def pg_execute(sql, params=()):
-                                                                                sql = sql.replace('?', '%s')
-                                                                                cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
-                                                                                cur.execute(sql, params)
-                                                                                if not 'SELECT' in sql.upper(): conn.commit()
-                                                                                                        reurn cur
-                                                                            conn.execute = pg_execute
-                                                    return conn
-except Exception as e:
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url and HAS_POSTGRES:
+        try:
+            conn = psycopg2.connect(db_url)
+            # Add a row-like access for postgres
+            if not hasattr(conn, 'execute'):
+                def pg_execute(sql, params=()):
+                    sql = sql.replace('?', '%s')
+                    cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
+                    cur.execute(sql, params)
+                    if not 'SELECT' in sql.upper(): 
+                        conn.commit()
+                    return cur
+                conn.execute = pg_execute
+            return conn
+        except Exception as e:
             log_debug(f"Postgres connect failed: {e}")
+    # Fallback to SQLite
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+def init_db():
+    conn = get_db_connection()
+    db_url = os.environ.get('DATABASE_URL')
+    is_postgres = db_url and HAS_POSTGRES
+    
+    id_type = "SERIAL PRIMARY KEY" if is_postgres else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    text_type = "TEXT"
+    
+    cursor = conn.cursor() if is_postgres else conn
+    
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS users (
             id {id_type},
             email {text_type} NOT NULL,
             email_hash {text_type} UNIQUE NOT NULL,

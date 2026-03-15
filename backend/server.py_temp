@@ -1,0 +1,228 @@
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+import requests
+import sys
+import sqlite3
+import jwt
+import datetime
+import time
+import random
+import threading
+import urllib.parse
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+import os
+import hashlib
+import base64
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from concurrent.futures import ThreadPoolExecutor
+
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    HAS_POSTGRES = True
+except ImportError:
+    HAS_POSTGRES = False
+
+try:
+    from curl_cffi import requests as c_requests
+except ImportError:
+    c_requests = requests # Fallback to standard requests if curl_cffi fails
+
+def log_debug(msg):
+    with open("debug_log.txt", "a", encoding="utf-8") as f:
+        f.write(str(msg) + "\n")
+    print(msg, flush=True)
+
+# Set base directory for static files (project root)
+# The backend is in c:\Users\Anderson\Desktop\Sistemas\Valorantn\backend
+# So root is one level up
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+app = Flask(__name__)
+# Enable CORS permissively
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+@app.route('/')
+def serve_index():
+    return send_from_directory(BASE_DIR, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory(BASE_DIR, path)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro_para_valorantn')
+
+# Security Manager for sensitive data encryption
+class SecurityManager:
+    def __init__(self):
+        # In production, this should be a stable environment variable
+        master_pwd = os.environ.get('MASTER_ENCRYPTION_KEY', 'valorantn_default_key_for_dev')
+        salt = b'valorantn_salt_fixed' # In a real prod environment, use a unique salt per user or a fixed salt for the app
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            iterations=100000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(master_pwd.encode()))
+        self.fernet = Fernet(key)
+
+    def encrypt(self, data):
+        if not data: return None
+        return self.fernet.encrypt(data.encode()).decode()
+
+    def decrypt(self, encrypted_data):
+        if not encrypted_data: return None
+        try:
+            return self.fernet.decrypt(encrypted_data.encode()).decode()
+        except:
+            return "[Error Decrypting]"
+
+    def hash_email(self, email):
+        """Creates a deterministic hash of the email for database lookups without decrypting."""
+        if not email: return None
+        return hashlib.sha256(email.lower().strip().encode()).hexdigest()
+
+security = SecurityManager()
+
+def get_db_connection():
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url and HAS_POSTGRES:
+        try:
+            conn = psycopg2.connect(db_url)
+            # Add a row-like access for postgres
+            if not hasattr(conn, 'execute'):
+                def pg_execute(sql, params=()):
+                    sql = sql.replace('?', '%s')
+                    cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
+                    cur.execute(sql, params)
+                    if not 'SELECT' in sql.upper(): 
+                        conn.commit()
+                    return cur
+                conn.execute = pg_execute
+            return conn
+        except Exception as e:
+            log_debug(f"Postgres connect failed: {e}")
+    # Fallback to SQLite
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_db_connection()
+    db_url = os.environ.get('DATABASE_URL')
+    is_postgres = db_url and HAS_POSTGRES
+    
+    id_type = "SERIAL PRIMARY KEY" if is_postgres else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    text_type = "TEXT"
+    
+    cursor = conn.cursor() if is_postgres else conn
+    
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS users (
+            id {id_type},
+            email {text_type} NOT NULL,
+            email_hash {text_type} UNIQUE NOT NULL,
+            password_hash {text_type} NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS valorant_accounts (
+            id {id_type},
+            user_id INTEGER NOT NULL,
+            name {text_type} NOT NULL,
+            tag {text_type} NOT NULL,
+            puuid {text_type},
+            account_level INTEGER DEFAULT 0,
+            region {text_type} DEFAULT 'latam',
+            card_small {text_type},
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            UNIQUE(user_id, name, tag)
+        )
+    ''')
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS manual_matches (
+            id {id_type},
+            user_id INTEGER NOT NULL,
+            result {text_type},
+            kills INTEGER,
+            deaths INTEGER,
+            assists INTEGER,
+            damage INTEGER,
+            rounds INTEGER,
+            acs INTEGER,
+            kast REAL,
+            hs REAL,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def get_db():
+    return get_db_connection()
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            parts = request.headers['Authorization'].split()
+            if len(parts) == 2 and parts[0] == 'Bearer':
+                token = parts[1]
+        
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 401
+            
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            conn = get_db()
+            current_user = conn.execute("SELECT * FROM users WHERE id = ?", (data['user_id'],)).fetchone()
+            conn.close()
+            if not current_user:
+                return jsonify({'error': 'User not found!'}), 401
+        except Exception as e:
+            return jsonify({'error': 'Token is invalid!'}), 401
+            
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    if not email or not password:
+        return jsonify({'error': 'Email and password required'}), 400
+        
+    email_hash = security.hash_email(email)
+    encrypted_email = security.encrypt(email)
+    hashed_password = generate_password_hash(password)
+    
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO users (email, email_hash, password_hash) VALUES (?, ?, ?)", 
+            (encrypted_email, email_hash, hashed_password)
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({'error': 'Email already registered'}), 400
+    except Exception as e:
+        # For Postgres, catch duplicate key error
+        if "unique constraint" in str(e).lower():
+            conn.close()
+            return jsonify({'error': 'Email already registered'}), 400
+        conn.close()
+        return jsonify({'error': str(e)}), 500
+    
+    conn.close()
+    return jsonify({'message': 'User created successfully'}), 201
