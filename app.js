@@ -1,5 +1,5 @@
 const API_KEY = 'f100b7fc-52cf-4347-b8c2-87a4a6078baf';
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = '/api';
 
 // App State
 let authToken = localStorage.getItem('val_auth_token') || null;
