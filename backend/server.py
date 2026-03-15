@@ -22,18 +22,18 @@ try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
     HAS_POSTGRES = True
-except ImportError:
+except Exception as e:
     HAS_POSTGRES = False
+    print(f"Warning: Psycopg2 not available: {e}")
 
 try:
     from curl_cffi import requests as c_requests
-except ImportError:
+except Exception:
     c_requests = requests # Fallback to standard requests if curl_cffi fails
 
 def log_debug(msg):
-    with open("debug_log.txt", "a", encoding="utf-8") as f:
-        f.write(str(msg) + "\n")
-    print(msg, flush=True)
+    # Only print to stdout for production safety (no file writes)
+    print(f"[DEBUG] {msg}", flush=True)
 
 # Set base directory for static files (project root)
 # The backend is in c:\Users\Anderson\Desktop\Sistemas\Valorantn\backend
@@ -198,13 +198,21 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Run init_db once
-try:
-    init_db()
-except Exception as e:
-    log_debug(f"init_db FAILED on startup: {e}")
+# Run init_db safely (triggered on first request or main)
+_db_initialized = False
+
+def ensure_db_initialized():
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            log_debug("Ensuring database is initialized...")
+            init_db()
+            _db_initialized = True
+        except Exception as e:
+            log_debug(f"init_db FAILED during safety check: {e}")
 
 def get_db():
+    ensure_db_initialized()
     conn, _ = get_db_connection()
     return conn
 
