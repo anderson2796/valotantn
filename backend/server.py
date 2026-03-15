@@ -108,9 +108,10 @@ def get_db_connection():
                     # Standardize placeholders and handle RETURNING
                     sql = sql.replace('?', '%s')
                     is_select = 'SELECT' in sql.upper()
-                    cur = conn.cursor(cursor_factory=RealDictCursor) if is_select else conn.cursor()
+                    has_returning = 'RETURNING' in sql.upper()
+                    cur = conn.cursor(cursor_factory=RealDictCursor) if (is_select and not has_returning) else conn.cursor()
                     cur.execute(sql, params)
-                    if not is_select:
+                    if not is_select and not has_returning:
                         conn.commit()
                     return cur
                 conn.execute = pg_execute
@@ -146,7 +147,18 @@ def init_db():
     ''')
     
     # Auto-migration for SQLite if table exists but email_hash is missing
-    if not is_postgres:
+    # Migrations for existing tables
+    if is_postgres:
+        # Check for email_hash in users
+        try:
+            cursor.execute("SELECT email_hash FROM users LIMIT 1")
+        except:
+            conn.rollback() 
+            log_debug("Migrating Postgres: adding email_hash column...")
+            cursor.execute("ALTER TABLE users ADD COLUMN email_hash TEXT UNIQUE")
+            conn.commit()
+    else:
+        # SQLite migrations
         try:
             cursor.execute("SELECT email_hash FROM users LIMIT 1")
         except:
