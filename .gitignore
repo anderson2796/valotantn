@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+database.db
+debug_log.txt
+debug_kaizen.py
+backend/database.db
+backend/__pycache__/
+.env
+node_modules/
+dist/
+.agents/
+.agent/
+brain/
+*.log

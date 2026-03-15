@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT Tracker | Stats & Accounts</title>
+    <meta name="description"
+        content="Visualiza tus estadísticas de Valorant, filtra por temporadas y suma múltiples cuentas en un solo lugar.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome is loaded via cdnjs below -->
+    <!-- Placeholder -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="dark-theme">
+    <div class="bg-glow"></div>
+    <div class="app-container">
+        <!-- Navigation / Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <div class="v-logo-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="v-logo">
+                        <path d="M10 20 L50 40 L90 20 L50 80 Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="main-title">VALORANT</span>
+                    <span class="sub-title">INSIGHT</span>
+                </div>
+            </div>
+
+            <div class="sidebar-user" id="sidebar-user-info">
+                <div class="user-avatar-wrapper">
+                    <img src="https://ui-avatars.com/api/?name=V&background=ff4655&color=fff&size=60&bold=true&format=svg" alt="Avatar" class="user-avatar" id="sidebar-avatar" onerror="this.src='https://ui-avatars.com/api/?name=V&background=ff4655&color=fff&size=60&bold=true'">
+                </div>
+                <div class="user-meta">
+                    <div class="user-name" id="sidebar-username">Riot_User#NA1</div>
+                    <div class="user-level" id="sidebar-level">Level 345</div>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-tab="dashboard"><i class="fas fa-th-large"></i> Dashboard</li>
+                <li data-tab="accounts"><i class="fas fa-users"></i> Mis Cuentas</li>
+                <li data-tab="aggregate"><i class="fas fa-chart-line"></i> Estadísticas Totales</li>
+                <li data-tab="provisional"><i class="fas fa-plus-square"></i> Partidas Provisionales</li>
+            </ul>
+            <div class="sidebar-footer">
+                <ul class="nav-links secondary-links">
+                    <li id="config-btn"><i class="fas fa-cog"></i> Configuración</li>
+                </ul>
+                <div class="logout-wrapper">
+                    <button id="logout-btn" class="logout-btn hidden" title="Cerrar Sesión">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="top-bar">
+                <div class="search-container">
+                    <input type="text" id="account-search" placeholder="Buscar cuenta: Nombre#TAG (ej. Kaizen#4977)">
+                    <button id="add-account-btn"><i class="fas fa-plus"></i></button>
+                </div>
+                <div class="user-profile-mini" id="active-profile-header">
+                    <!-- Dynamic active account info -->
+                </div>
+            </header>
+
+            <section class="tab-content active" id="dashboard-tab">
+                <div class="hero-section" id="account-hero">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-info" id="hero-info">
+                        <div class="rank-badge">
+                            <img src="" alt="Rank" id="main-rank-img">
+                            <div class="rank-info-text">
+                                <span class="label">Peak Rank</span>
+                                <span id="rank-name">--</span>
+                            </div>
+                        </div>
+                        <div class="user-details">
+                            <h1 id="main-username">Bienvenido</h1>
+                            <p id="main-level">Nivel --</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-controls">
+                    <select id="season-filter">
+                        <option value="lifetime">Todas las Temporadas</option>
+                        <!-- Seasons will be added here -->
+                    </select>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="label">Win Rate</span>
+                        <div class="value" id="stat-winrate">0%</div>
+                        <div class="progress-bar">
+                            <div class="fill" id="winrate-fill"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="label">K/D Ratio</span>
+                        <div class="value" id="stat-kd">0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="label">Kills/Round</span>
+                        <div class="value" id="stat-kpr">0.0</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="label">Win Rate (Last 5)</span>
+                        <div class="value" id="stat-recent-wr">--</div>
+                    </div>
+                </div>
+
+                <div class="secondary-grid">
+                    <div class="panel match-history">
+                        <h3>Partidas Recientes</h3>
+                        <div class="match-list" id="recent-matches">
+                            <!-- Matches will be injected here -->
+                            <p class="empty-msg">No hay datos disponibles</p>
+                        </div>
+                    </div>
+                    <div class="panel top-agents">
+                        <div class="panel-header">
+                            <h3>Agentes Más Usados</h3>
+                        </div>
+                        <div class="agent-table-container">
+                            <table class="agent-table">
+                                <thead>
+                                    <tr>
+                                        <th>Agente</th>
+                                        <th>Partidas</th>
+                                        <th>Win %</th>
+                                        <th>K/D</th>
+                                        <th>ADR</th>
+                                        <th>ACS</th>
+                                        <th>Playtime</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-agents-mini">
+                                    <!-- Agent rows injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-content" id="accounts-tab">
+                <h2>Mis Cuentas Agregadas</h2>
+                <div class="accounts-grid" id="managed-accounts">
+                    <!-- Managed accounts cards -->
+                </div>
+            </section>
+
+            <section class="tab-content" id="aggregate-tab">
+                <div class="tracker-header">
+                    <div class="global-user-info">
+                        <div class="global-rank-icon">
+                            <img id="global-rank-icon-img"
+                                src="https://media.valorant-api.com/competitivetiers/03621f13-43b2-ad59-395d-209214732C7a/15/largeicon.png"
+                                alt="Rank Icon">
+                        </div>
+                        <div class="global-user-meta">
+                            <span class="label">Peak Rank</span>
+                            <h2 id="global-rank-text">Gold 3</h2>
+                            <div class="level-indicator">Level <span id="global-total-level">0</span></div>
+                        </div>
+                        <div class="win-loss-circle">
+                            <div class="circle-text">
+                                <span id="global-wins">0</span> W<br>
+                                <span id="global-losses">0</span> L
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tracker-main-stats">
+                    <div class="t-card">
+                        <div class="t-card-header">
+                            <span class="label">Damage/Round</span>
+                            <i class="fas fa-ellipsis-v"></i>
+                        </div>
+                        <div class="value" id="global-adr">0.0</div>
+                    </div>
+                    <div class="t-card">
+                        <div class="t-card-header">
+                            <span class="label">K/D Ratio</span>
+                            <i class="fas fa-ellipsis-v"></i>
+                        </div>
+                        <div class="value" id="global-kd">0.00</div>
+                    </div>
+                    <div class="t-card">
+                        <div class="t-card-header">
+                            <span class="label">Headshot %</span>
+                            <i class="fas fa-ellipsis-v"></i>
+                        </div>
+                        <div class="value" id="global-hs">0.0%</div>
+                    </div>
+                    <div class="t-card">
+                        <div class="t-card-header">
+                            <span class="label">Win %</span>
+                            <i class="fas fa-ellipsis-v"></i>
+                        </div>
+                        <div class="value" id="global-win-percent">0.0%</div>
+                    </div>
+                </div>
+
+                <div class="tracker-grid">
+                    <div class="grid-item">
+                        <span class="label">Wins</span>
+                        <div class="val" id="global-wins-alt">0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">KAST</span>
+                        <div class="val" id="global-kast">0.0%</div>
+                    </div>
+
+                    <div class="grid-item">
+                        <span class="label">Kills</span>
+                        <div class="val" id="global-kills">0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">Deaths</span>
+                        <div class="val" id="global-deaths">0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">Assists</span>
+                        <div class="val" id="global-assists">0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">ACS</span>
+                        <div class="val" id="global-acs">0.0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">KAD Ratio</span>
+                        <div class="val" id="global-kad">0.00</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">Kills/Round</span>
+                        <div class="val" id="global-kpr">0.0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">Clutches (1v1)</span>
+                        <div class="val" id="global-clutches">0</div>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">Flawless Rounds</span>
+                        <div class="val" id="global-flawless">0</div>
+                    </div>
+                </div>
+
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-header">
+                        <h3>Agentes Agregados (Global)</h3>
+                    </div>
+                    <div class="agent-table-container">
+                        <table class="agent-table">
+                            <thead>
+                                <tr>
+                                    <th>Agente</th>
+                                    <th>Partidas</th>
+                                    <th>Win %</th>
+                                    <th>K/D</th>
+                                    <th>ADR</th>
+                                    <th>ACS</th>
+                                    <th>Playtime</th>
+                                </tr>
+                            </thead>
+                            <tbody id="global-agents-list">
+                                <!-- Aggregated agent rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-content" id="provisional-tab">
+                <div class="panel provisional-panel">
+                    <div class="provisional-header">
+                        <div>
+                            <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 6px;">Registrar Partida Provisional</h2>
+                            <p style="color: var(--v-text-muted); font-size: 0.9rem;">Añade manualmente partidas jugadas en otras cuentas para incluirlas en tus totales.</p>
+                        </div>
+                    </div>
+
+                    <form id="manual-match-form" class="manual-form-grid">
+                        <!-- Row 1: Result full-width -->
+                        <div class="form-field result-field">
+                            <label class="field-label">Resultado</label>
+                            <div class="result-toggle">
+                                <select id="m-result" required class="result-select">
+                                    <option value="win">🏆 Victoria</option>
+                                    <option value="loss">💀 Derrota</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: K/D/A -->
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-skull-crossbones"></i> Kills</label>
+                            <input type="number" id="m-kills" min="0" value="0" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-heart-broken"></i> Deaths</label>
+                            <input type="number" id="m-deaths" min="0" value="0" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-hands-helping"></i> Assists</label>
+                            <input type="number" id="m-assists" min="0" value="0" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-fire"></i> Daño Total</label>
+                            <input type="number" id="m-damage" min="0" placeholder="Ej: 3500" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-redo"></i> Rondas</label>
+                            <input type="number" id="m-rounds" min="1" value="20" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-crosshairs"></i> Combat Score</label>
+                            <input type="number" id="m-acs" min="0" placeholder="ACS total" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-chart-line"></i> KAST %</label>
+                            <input type="number" id="m-kast" min="0" max="100" value="0" step="0.1" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label"><i class="fas fa-crosshairs"></i> HS %</label>
+                            <input type="number" id="m-hs" min="0" max="100" value="0" step="0.1" required>
+                        </div>
+
+                        <div class="form-submit-row">
+                            <button type="submit" class="v-btn-primary"><i class="fas fa-save"></i> Guardar Partida</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="panel" style="margin-top: 20px;">
+                    <h3>Lista de Partidas Manuales</h3>
+                    <div id="manual-matches-list" class="manual-list">
+                        <p class="empty-msg">No has añadido partidas manuales aún.</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Auth Modal Overlay -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h2 id="auth-title">Iniciar Sesión</h2>
+            </div>
+            <form id="auth-form" class="auth-form">
+                <input type="email" id="auth-email" placeholder="Correo electrónico" required>
+                <input type="password" id="auth-password" placeholder="Contraseña" required>
+                <button type="submit" id="auth-submit-btn" class="v-btn-primary">Entrar</button>
+            </form>
+            <div class="auth-switch">
+                <span id="auth-toggle-text">¿No tienes cuenta? <a href="#" id="auth-toggle-btn">Regístrate</a></span>
+            </div>
+            <p id="auth-error" class="auth-error hidden"></p>
+        </div>
+    </div>
+
+    <!-- Modales / Loaders -->
+    <div id="loader" class="loader-overlay hidden">
+        <div class="spinner"></div>
+        <p>Cargando datos de Radiant...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

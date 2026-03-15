@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tracker.gg API Test</title>
+</head>
+
+<body>
+    <h1>Tracker.gg API Test</h1>
+    <div id="status">Testing...</div>
+    <pre id="output"></pre>
+    <script>
+        const API_KEY = 'f100b7fc-52cf-4347-b8c2-87a4a6078baf';
+        const url = 'https://public-api.tracker.gg/v2/valorant/standard/profile/riot/Kaizen%234977';
+
+        async function test() {
+            try {
+                const fullUrl = url;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`;
+
+                const response = await fetch(proxyUrl, {
+                    headers: {
+                        'TRN-Api-Key': API_KEY,
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('status').innerText = 'Status: ' + response.status;
+                document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                document.getElementById('status').innerText = 'Error: ' + err.message;
+            }
+        }
+        test();
+    </script>
+</body>
+
+</html>

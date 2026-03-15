@@ -1,0 +1,690 @@
+
+>>> AGGREGATION START: Processing 6 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770099500699', 'stats': {'kills': 23, 'deaths': 9, 'assists': 4, 'damage': 4160, 'rounds': 16, 'acs': 402, 'kast': 75, 'hs': 29, 'wins': 1, 'losses': 0}}, {'type': 'manual', 'name': 'Partida_1770099651708', 'stats': {'kills': 17, 'deaths': 14, 'assists': 6, 'damage': 3485, 'rounds': 17, 'acs': 308, 'kast': 76, 'hs': 28, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7203 D:7783 R:10114
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770099500699
+  [Manual] Adding: Partida_1770099651708
+>>> FINAL TOTALS:
+    K/D/A: 20536 / 20647 / 6169
+    W/G: 619 / 1307 (Rate: 47.4%)
+    Dmg/Rnd: 3926777 / 27043 (ADR: 145.2)
+    Score: 6062021, Hits: 81293, Level: 309
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '4977', 'account_level': 25, 'region': 'na'}, {'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#4977 (Region: na, Lvl_In: 25)
+    Rank found: Gold 2
+    Stats added: K:928 D:1054 R:1374
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 8278 / 8981 / 2653
+    W/G: 262 / 562 (Rate: 46.6%)
+    Dmg/Rnd: 1597087 / 11682 (ADR: 136.7)
+    Score: 2459416, Hits: 33820, Level: 310
+
+>>> AGGREGATION START: Processing 3 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '4977', 'account_level': 25, 'region': 'na'}, {'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#4977 (Region: na, Lvl_In: 25)
+    Rank found: Gold 2
+    Stats added: K:928 D:1054 R:1374
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Rank found: Gold 2
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 13886 / 14120 / 4179
+    W/G: 420 / 897 (Rate: 46.8%)
+    Dmg/Rnd: 2654802 / 18527 (ADR: 143.3)
+    Score: 4099962, Hits: 54786, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Rank found: Gold 2
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 7350 / 7927 / 2339
+    W/G: 223 / 493 (Rate: 45.2%)
+    Dmg/Rnd: 1416604 / 10308 (ADR: 137.4)
+    Score: 2181200, Hits: 30099, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 5608 / 5139 / 1526
+    W/G: 158 / 335 (Rate: 47.2%)
+    Dmg/Rnd: 1057715 / 6845 (ADR: 154.5)
+    Score: 1640546, Hits: 20966, Level: 64
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 5608 / 5139 / 1526
+    W/G: 158 / 335 (Rate: 47.2%)
+    Dmg/Rnd: 1057715 / 6845 (ADR: 154.5)
+    Score: 1640546, Hits: 20966, Level: 64
+
+>>> AGGREGATION START: Processing 1 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 5608 / 5139 / 1526
+    W/G: 158 / 335 (Rate: 47.2%)
+    Dmg/Rnd: 1057715 / 6845 (ADR: 154.5)
+    Score: 1640546, Hits: 20966, Level: 64
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added: K:7350 D:7927 R:10308
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added: K:5608 D:5139 R:6845
+>>> FINAL TOTALS:
+    K/D/A: 12958 / 13066 / 3865
+    W/G: 381 / 828 (Rate: 46.0%)
+    Dmg/Rnd: 2474319 / 17153 (ADR: 144.2)
+    Score: 3821746, Hits: 51065, Level: 310
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 12
+    K/D/A: 299 / 283 / 98
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 0 / 0 / 0
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 6
+    K/D/A: 152 / 139 / 54
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 12
+    K/D/A: 299 / 283 / 98
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 12
+    K/D/A: 299 / 283 / 98
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 12
+    K/D/A: 299 / 283 / 98
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 12
+    K/D/A: 299 / 283 / 98
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 12
+    K/D/A: 299 / 283 / 98
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Tracker failed for Kaizen, using HenrikDev Fallback for ALL stats
+>>> FINAL TOTALS: Agents Aggregated: 7
+    K/D/A: 147 / 144 / 44
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added from Tracker: K:615 D:581 R:768
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added from Tracker: K:402 D:361 R:494
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1017 / 942 / 323
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added from Tracker: K:615 D:581 R:768
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added from Tracker: K:402 D:361 R:494
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1017 / 942 / 323
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added from Tracker: K:662 D:622 R:824
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added from Tracker: K:402 D:361 R:494
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1064 / 983 / 338
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 310)
+    Peak Rank found: Diamond 1 (Tier: 18)
+    Stats added from Tracker: K:662 D:622 R:824
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 64)
+    Peak Rank found: Gold 3 (Tier: 14)
+    Stats added from Tracker: K:402 D:361 R:494
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1064 / 983 / 338
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1064 / 983 / 338
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1064 / 983 / 338
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 0
+    K/D/A: 1064 / 983 / 338
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 1064 / 983 / 338
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG - Fetching data...
+  [Linked] Kaizen#7586 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG - Fetching data...
+  [Linked] Kaizen#7586 - Fetching data...
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#GPVG - Fetching data...
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 2 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 13005 / 13107 / 3880
+
+>>> AGGREGATION START: Processing 3 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 66, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+  [Linked] Mercykill#9773 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 17812 / 17971 / 5411
+
+>>> AGGREGATION START: Processing 4 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 66, 'region': 'na'}, {'name': 'Kaizen', 'tag': '4977', 'account_level': 26, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+  [Linked] Mercykill#9773 - Fetching data...
+  [Linked] Kaizen#4977 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 25
+    K/D/A: 18788 / 19079 / 5751
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 66, 'region': 'na'}, {'name': 'Kaizen', 'tag': '4977', 'account_level': 26, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 51, 'region': 'na'}]}
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+  [Linked] Mercykill#9773 - Fetching data...
+  [Linked] Kaizen#4977 - Fetching data...
+...
+>>> FINAL TOTALS: Agents Aggregated: 26
+    K/D/A: 22188 / 22357 / 6713
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '4977', 'account_level': 26, 'region': 'na'}, {'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 66, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 51, 'region': 'na'}]}
+  [Linked] Kaizen#4977 - Fetching data...
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+  [Linked] Mercykill#9773 - Fetching data...
+
+>>> FINAL TOTALS: Agents Aggregated: 26
+    K/D/A: 22188 / 22357 / 6713
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '4977', 'account_level': 26, 'region': 'na'}, {'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 66, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 51, 'region': 'na'}]}
+  [Linked] Kaizen#4977 - Fetching data...
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Kaizen#GPVG - Fetching data...
+.
+  [Linked] Satoru Gojo#7411 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 26
+    K/D/A: 22188 / 22357 / 6713
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '4977', 'account_level': 26, 'region': 'na'}, {'name': 'Kaizen', 'tag': '7586', 'account_level': 310, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 64, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 66, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 51, 'region': 'na'}]}
+  [Linked] Kaizen#4977 - Fetching data...
+  [Linked] Kaizen#7586 - Fetching data...
+  [Linked] Mercykill#9773 - Fetching data...
+  [Linked] Satoru Gojo#7411 - Fetching data...
+>>> FINAL TOTALS: Agents Aggregated: 26
+    K/D/A: 22188 / 22357 / 6713

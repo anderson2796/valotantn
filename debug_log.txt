@@ -1,0 +1,201 @@
+
+>>> AGGREGATION START: Processing 4 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+>>> FINAL TOTALS: K:20476, D:20609, R:26989, Level:309
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770098424247', 'stats': {'kills': 17, 'deaths': 14, 'assists': 6, 'damage': 205, 'rounds': 21, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770098424247
+>>> FINAL TOTALS: K:20493, D:20623, R:27010, Level:309
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770098516079', 'stats': {'kills': 17, 'deaths': 14, 'assists': 6, 'damage': 205, 'rounds': 21, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770098516079
+>>> FINAL TOTALS: K:20493, D:20623, R:27010, Level:309
+
+>>> AGGREGATION START: Processing 6 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770098516079', 'stats': {'kills': 17, 'deaths': 14, 'assists': 6, 'damage': 205, 'rounds': 21, 'wins': 1, 'losses': 0}}, {'type': 'manual', 'name': 'Partida_1770098578866', 'stats': {'kills': 23, 'deaths': 9, 'assists': 4, 'damage': 260, 'rounds': 16, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770098516079
+  [Manual] Adding: Partida_1770098578866
+>>> FINAL TOTALS: K:20516, D:20632, R:27026, Level:309
+
+>>> AGGREGATION START: Processing 4 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+>>> FINAL TOTALS: K:20476, D:20609, R:26989, Level:309
+
+>>> AGGREGATION START: Processing 4 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+>>> FINAL TOTALS: K:20476, D:20609, R:26989, Level:309
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770099006300', 'stats': {'kills': 23, 'deaths': 9, 'assists': 4, 'damage': 260, 'rounds': 16, 'acs': 402, 'kast': 75, 'hs': 29, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770099006300
+>>> FINAL TOTALS: K:20499, D:20618, R:27005, Level:309
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770099006300', 'stats': {'kills': 23, 'deaths': 9, 'assists': 4, 'damage': 260, 'rounds': 16, 'acs': 402, 'kast': 75, 'hs': 29, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770099006300
+>>> FINAL TOTALS:
+    K/D/A: 20499 / 20618 / 6159
+    W/G: 618 / 1305 (Rate: 47.4%)
+    Dmg/Rnd: 3915202 / 27005 (ADR: 145.0)
+    Score: 6051033, Hits: 81061, Level: 309
+
+>>> AGGREGATION START: Processing 4 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+>>> FINAL TOTALS:
+    K/D/A: 20476 / 20609 / 6155
+    W/G: 617 / 1304 (Rate: 47.3%)
+    Dmg/Rnd: 3914942 / 26989 (ADR: 145.1)
+    Score: 6044601, Hits: 80901, Level: 309
+
+>>> AGGREGATION START: Processing 5 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770099500699', 'stats': {'kills': 23, 'deaths': 9, 'assists': 4, 'damage': 4160, 'rounds': 16, 'acs': 402, 'kast': 75, 'hs': 29, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770099500699
+>>> FINAL TOTALS:
+    K/D/A: 20499 / 20618 / 6159
+    W/G: 618 / 1305 (Rate: 47.4%)
+    Dmg/Rnd: 3919102 / 27005 (ADR: 145.1)
+    Score: 6051033, Hits: 81061, Level: 309
+
+>>> AGGREGATION START: Processing 6 entries
+>>> Data received: {'accounts': [{'name': 'Kaizen', 'tag': '7586', 'account_level': 309, 'region': 'na'}, {'name': 'Mercykill', 'tag': '9773', 'account_level': 63, 'region': 'na'}, {'name': 'Kaizen', 'tag': 'GPVG', 'account_level': 63, 'region': 'na'}, {'name': 'Satoru Gojo', 'tag': '7411', 'account_level': 50, 'region': 'na'}, {'type': 'manual', 'name': 'Partida_1770099500699', 'stats': {'kills': 23, 'deaths': 9, 'assists': 4, 'damage': 4160, 'rounds': 16, 'acs': 402, 'kast': 75, 'hs': 29, 'wins': 1, 'losses': 0}}, {'type': 'manual', 'name': 'Partida_1770099651708', 'stats': {'kills': 17, 'deaths': 14, 'assists': 6, 'damage': 3485, 'rounds': 17, 'acs': 308, 'kast': 76, 'hs': 28, 'wins': 1, 'losses': 0}}]}
+  [Linked] Kaizen#7586 (Region: na, Lvl_In: 309)
+    Rank found: Gold 2
+    Stats added: K:7183 D:7768 R:10093
+  [Linked] Mercykill#9773 (Region: na, Lvl_In: 63)
+    Rank found: Gold 1
+    Stats added: K:4486 D:4584 R:6011
+  [Linked] Kaizen#GPVG (Region: na, Lvl_In: 63)
+    Rank found: Gold 2
+    Stats added: K:5509 D:5054 R:6735
+  [Linked] Satoru Gojo#7411 (Region: na, Lvl_In: 50)
+    Rank found: Gold 2
+    Stats added: K:3298 D:3203 R:4150
+  [Manual] Adding: Partida_1770099500699
+  [Manual] Adding: Partida_1770099651708
+>>> FINAL TOTALS:
+    K/D/A: 20516 / 20632 / 6165
+    W/G: 619 / 1306 (Rate: 47.4%)
+    Dmg/Rnd: 3922587 / 27022 (ADR: 145.2)
+    Score: 6056269, Hits: 81231, Level: 309
