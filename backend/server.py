@@ -86,7 +86,7 @@ def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     if db_url and HAS_POSTGRES:
         # Use Postgres (Production)
-        return psycopg2.connect(db_url)
+        
     else:
         # Use SQLite (Local)
         conn = sqlite3.connect('database.db')
