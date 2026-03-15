@@ -93,15 +93,14 @@ def get_db_connection():
                                                                                 cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
                                                                                 cur.execute(sql, params)
                                                                                 if not 'SELECT' in sql.upper(): conn.commit()
-                                                                                                        return cur
+                                                                                                        reurn cur
                                                                             conn.execute = pg_execute
                                                     return conn
 except Exception as e:
             log_debug(f"Postgres connect failed: {e}")
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
-    return conncursor.execute(f'''
-        CREATE TABLE IF NOT EXISTS users (
+    return conn
             id {id_type},
             email {text_type} NOT NULL,
             email_hash {text_type} UNIQUE NOT NULL,
