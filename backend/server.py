@@ -91,6 +91,7 @@ def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     if db_url and HAS_POSTGRES:
         try:
+            log_debug(f"Connecting to Postgres... (URL exists: {bool(db_url)})")
             conn = psycopg2.connect(db_url)
             # Add a row-like access for postgres
             if not hasattr(conn, 'execute'):
@@ -102,10 +103,13 @@ def get_db_connection():
                         conn.commit()
                     return cur
                 conn.execute = pg_execute
+            log_debug("Postgres connected successfully")
             return conn
         except Exception as e:
             log_debug(f"Postgres connect failed: {e}")
+    
     # Fallback to SQLite
+    log_debug(f"Falling back to SQLite. (HAS_POSTGRES: {HAS_POSTGRES}, URL exists: {bool(db_url)})")
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
