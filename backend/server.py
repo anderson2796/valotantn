@@ -216,6 +216,67 @@ def get_db():
     conn, _ = get_db_connection()
     return conn
 
+def get_user_id_for_account(name, tag):
+    """Find user_id for a given encrypted account name#tag."""
+    try:
+        conn = get_db()
+        accounts = conn.execute("SELECT user_id, name, tag FROM valorant_accounts").fetchall()
+        conn.close()
+        for acc in accounts:
+            try:
+                acc_name = security.decrypt(acc['name'])
+                acc_tag = security.decrypt(acc['tag'])
+                if acc_name.lower() == name.lower() and acc_tag.lower() == tag.lower():
+                    return acc['user_id']
+            except:
+                continue
+    except Exception as e:
+        print(f"Error in user_id lookup: {e}", flush=True)
+    return None
+
+def merge_manual_stats(stats, user_id):
+    """Aggregate manual matches into provided stats dict."""
+    if not user_id:
+        return stats
+    try:
+        conn = get_db()
+        manual = conn.execute("SELECT * FROM manual_matches WHERE user_id = ?", (user_id,)).fetchall()
+        conn.close()
+        
+        if not manual:
+            return stats
+
+        print(f"  Merging {len(manual)} manual matches for user {user_id}", flush=True)
+        for m in manual:
+            stats['games'] = stats.get('games', 0) + 1
+            stats['kills'] = stats.get('kills', 0) + (m['kills'] or 0)
+            stats['deaths'] = stats.get('deaths', 0) + (m['deaths'] or 0)
+            stats['assists'] = stats.get('assists', 0) + (m['assists'] or 0)
+            stats['damage'] = stats.get('damage', 0) + (m['damage'] or 0)
+            stats['rounds'] = stats.get('rounds', 0) + (m['rounds'] or 0)
+            stats['score'] = stats.get('score', 0) + ((m['acs'] or 0) * (m['rounds'] or 0))
+            
+            res = (m['result'] or "").lower()
+            if any(win_word in res for win_word in ['win', 'vitoria', 'vitória', 'victoria']):
+                stats['wins'] = stats.get('wins', 0) + 1
+            else:
+                stats['losses'] = stats.get('losses', 0) + 1
+                
+        # Re-derive percentages and rates
+        d_div = stats['deaths'] if stats['deaths'] > 0 else 1
+        r_div = stats['rounds'] if stats['rounds'] > 0 else 1
+        g_div = stats['games']  if stats['games']  > 0 else 1
+        stats['kd'] = round(stats['kills'] / d_div, 2)
+        stats['kpr'] = round(stats['kills'] / r_div, 2)
+        stats['damagePerRound'] = round(stats['damage'] / r_div, 1)
+        stats['acs'] = round(stats['score'] / r_div, 1)
+        stats['winPercentValue'] = round((stats['wins'] / g_div) * 100, 1)
+        stats['winPercent'] = f"{stats['winPercentValue']}%"
+        stats['kad'] = round((stats['kills'] + stats['assists']) / d_div, 2)
+    except Exception as e:
+        print(f"Error merging manual stats: {e}", flush=True)
+    return stats
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -860,7 +921,12 @@ def get_profile(name, tag):
         parsed = parse_tracker_data(t_data, name, tag, rank=rank_display, tier_id=tier_id)
         print(f"  Tracker.gg parse result: {'SUCCESS' if parsed else 'FAILED'}", flush=True)
         if parsed:
-            # Fetch agents (with match-based fallback)
+            # Merge Manual Matches
+            u_id = get_user_id_for_account(name, tag)
+            if u_id:
+                parsed['stats'] = merge_manual_stats(parsed['stats'], u_id)
+                
+            # Fetch agents
             agent_data = get_tracker_agents(name, tag)
             if agent_data:
                 parsed['agents'] = parse_agent_segments(agent_data)
@@ -973,7 +1039,7 @@ def get_profile(name, tag):
             })
         agents_list.sort(key=lambda x: x['matches'], reverse=True)
 
-        return jsonify({
+        profile_res = {
             'name': name, 'tag': tag,
             'rank': rank_display, 'tier_id': tier_id,
             'stats': {
@@ -1003,7 +1069,14 @@ def get_profile(name, tag):
                 'rounds':            stats['rounds'],
             },
             'agents': agents_list
-        })
+        }
+
+        # Merge Manual Matches into Fallback Stats
+        u_id = get_user_id_for_account(name, tag)
+        if u_id:
+            profile_res['stats'] = merge_manual_stats(profile_res['stats'], u_id)
+
+        return jsonify(profile_res)
 
     except Exception as e:
         print(f"Error serving profile: {e}", flush=True)
