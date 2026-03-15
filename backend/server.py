@@ -91,8 +91,13 @@ def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     if db_url and HAS_POSTGRES:
         try:
-            log_debug(f"Connecting to Postgres... (URL exists: {bool(db_url)})")
-            conn = psycopg2.connect(db_url)
+            # Fix postgres:// URLs (Render/Heroku compatible)
+            if db_url.startswith("postgres://"):
+                db_url = db_url.replace("postgres://", "postgresql://", 1)
+                
+            log_debug("Connecting to PostgreSQL (with 10s timeout)...")
+            conn = psycopg2.connect(db_url, connect_timeout=10)
+            
             # Add a row-like access for postgres
             if not hasattr(conn, 'execute'):
                 def pg_execute(sql, params=()):
@@ -106,10 +111,10 @@ def get_db_connection():
             log_debug("Postgres connected successfully")
             return conn, True
         except Exception as e:
-            log_debug(f"Postgres connect failed: {e}")
+            log_debug(f"Postgres connect failed (falling back to SQLite): {e}")
     
     # Fallback to SQLite
-    log_debug(f"Falling back to SQLite. (HAS_POSTGRES: {HAS_POSTGRES}, URL exists: {bool(db_url)})")
+    log_debug("Using SQLite fallback.")
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn, False
@@ -193,7 +198,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-init_db()
+# Run init_db once
+try:
+    init_db()
+except Exception as e:
+    log_debug(f"init_db FAILED on startup: {e}")
 
 def get_db():
     conn, _ = get_db_connection()
@@ -1267,8 +1276,8 @@ def debug_db():
     return jsonify(status)
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
     print("="*50)
-    print("VALORANT STATS (HENRIK) SERVER - DEBUG MODE ACTIVE")
-    print("VERSIÓN ACTUALIZADA - SI VES ESTO, ESTÁ BIEN")
+    print(f"VALORANT STATS (HENRIK) SERVER - Listening on port {port}")
     print("="*50)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=port)
