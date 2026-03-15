@@ -83,36 +83,24 @@ class SecurityManager:
 security = SecurityManager()
 
 def get_db_connection():
-    db_url = os.environ.get('DATABASE_URL')
-    if db_url and HAS_POSTGRES:
-        # Use Postgres (Production)
-                # Use Postgres (Production)
-                conn = psycopg2.connect(db_url)
-                if not hasattr(conn, 'execute'):
-                                def pg_execute(sql, params=()):
-                                                    sql = sql.replace('?', '%s')
-                                                    cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
-                                                    cur.execute(sql, params)
-                                                    if not 'SELECT' in sql.upper(): conn.commit()
-                                                                                            return cur
-                                                conn.execute = pg_execute
-    else:
-        # Use SQLite (Local)
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        return conn
-
-def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Check if we are using Postgres or SQLite
-    is_postgres = hasattr(conn, 'tpc_begin') # Simple check for psycopg2 or similar
-    
-    id_type = "SERIAL PRIMARY KEY" if HAS_POSTGRES and os.environ.get('DATABASE_URL') else "INTEGER PRIMARY KEY AUTOINCREMENT"
-    text_type = "TEXT"
-    
-    cursor.execute(f'''
+        db_url = os.environ.get('DATABASE_URL')
+        if db_url and HAS_POSTGRES:
+                    try:
+                                    conn = psycopg2.connect(db_url)
+                                    if not hasattr(conn, 'execute'):
+                                                        def pg_execute(sql, params=()):
+                                                                                sql = sql.replace('?', '%s')
+                                                                                cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
+                                                                                cur.execute(sql, params)
+                                                                                if not 'SELECT' in sql.upper(): conn.commit()
+                                                                                                        return cur
+                                                                            conn.execute = pg_execute
+                                                    return conn
+except Exception as e:
+            log_debug(f"Postgres connect failed: {e}")
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conncursor.execute(f'''
         CREATE TABLE IF NOT EXISTS users (
             id {id_type},
             email {text_type} NOT NULL,
