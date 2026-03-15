@@ -455,7 +455,9 @@ def get_tracker_data(name, tag):
         print(f"Tracker.gg: FAILED both attempts for {name}#{tag} (Last Code: {resp.status_code})", flush=True)
             
     except Exception as e:
-        print(f"Error fetching tracker data for {name}: {e}", flush=True)
+        print(f"Error fetching tracker data for {name}: {str(e)}", flush=True)
+        import traceback
+        traceback.print_exc()
     return None
 
 def get_tracker_agents(name, tag):
@@ -844,10 +846,12 @@ def get_profile(name, tag):
         highest = mmr_data.get('highest_rank', {})
         rank_display = highest.get('patched_tier', 'Unrated')
         tier_id = highest.get('tier', 0)
-        if rank_display == "Unrated":
+        if not rank_display or rank_display == "Unrated":
             curr = mmr_data.get('current_data', {})
             rank_display = curr.get('currenttierpatched', 'Unrated')
             tier_id = curr.get('currenttier', 0)
+    else:
+        print(f"  MMR fetch failed/empty for {name} (Code: {mmr_resp.status_code if mmr_resp else 'No Resp'})", flush=True)
 
     # STRATEGY 1: Try Tracker.gg (Preferred for Lifetime Stats)
     t_data = get_tracker_data(name, tag)
@@ -887,8 +891,16 @@ def get_profile(name, tag):
         agent_stats = {}
 
         for m in all_matches:
-            player = next((p for p in m.get('players', {}).get('all_players', [])
-                         if p.get('name', '').lower() == name.lower() and p.get('tag', '').lower() == tag.lower()), None)
+            # More robust player search: check name/tag case-insensitive, but handle None
+            player = None
+            players_list = m.get('players', {}).get('all_players', [])
+            for p in players_list:
+                p_name = (p.get('name') or "").lower()
+                p_tag = (p.get('tag') or "").lower()
+                if p_name == name.lower() and p_tag == tag.lower():
+                    player = p
+                    break
+            
             if player:
                 stats['games'] += 1
                 p_stats = player.get('stats', {}) or {}
