@@ -54,6 +54,10 @@ def serve_static(path):
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro_para_valorantn')
 
+# Configuration
+HENRIK_API_KEY = os.environ.get('HENRIK_API_KEY', '')
+API_TIMEOUT = 12 # Seconds to wait for external APIs
+
 # Security Manager for sensitive data encryption
 class SecurityManager:
     def __init__(self):
@@ -101,10 +105,12 @@ def get_db_connection():
             # Add a row-like access for postgres
             if not hasattr(conn, 'execute'):
                 def pg_execute(sql, params=()):
+                    # Standardize placeholders and handle RETURNING
                     sql = sql.replace('?', '%s')
-                    cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
+                    is_select = 'SELECT' in sql.upper()
+                    cur = conn.cursor(cursor_factory=RealDictCursor) if is_select else conn.cursor()
                     cur.execute(sql, params)
-                    if not 'SELECT' in sql.upper(): 
+                    if not is_select:
                         conn.commit()
                     return cur
                 conn.execute = pg_execute
@@ -220,6 +226,7 @@ def get_user_id_for_account(name, tag):
     """Find user_id for a given encrypted account name#tag."""
     try:
         conn = get_db()
+        # Fetch only what we need
         accounts = conn.execute("SELECT user_id, name, tag FROM valorant_accounts").fetchall()
         conn.close()
         for acc in accounts:
@@ -428,14 +435,20 @@ def delete_user_account(current_user, puuid):
 @token_required
 def add_user_match(current_user):
     data = request.json
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO manual_matches (user_id, result, kills, deaths, assists, damage, rounds, acs, kast, hs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (current_user['id'], data.get('result'), data.get('kills', 0), data.get('deaths', 0), data.get('assists', 0), data.get('damage', 0), data.get('rounds', 0), data.get('acs', 0), data.get('kast', 0.0), data.get('hs', 0.0))
-    )
-    match_id = cursor.lastrowid
-    conn.commit()
+    conn, is_pg = get_db_connection()
+    try:
+        sql = "INSERT INTO manual_matches (user_id, result, kills, deaths, assists, damage, rounds, acs, kast, hs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        if is_pg:
+            sql += " RETURNING id"
+            cur = conn.execute(sql, (current_user['id'], data.get('result'), data.get('kills', 0), data.get('deaths', 0), data.get('assists', 0), data.get('damage', 0), data.get('rounds', 0), data.get('acs', 0), data.get('kast', 0.0), data.get('hs', 0.0)))
+            match_id = cur.fetchone()[0]
+        else:
+            cur = conn.execute(sql, (current_user['id'], data.get('result'), data.get('kills', 0), data.get('deaths', 0), data.get('assists', 0), data.get('damage', 0), data.get('rounds', 0), data.get('acs', 0), data.get('kast', 0.0), data.get('hs', 0.0)))
+            match_id = cur.lastrowid
+        conn.commit()
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': str(e)}), 500
     conn.close()
     
     data['id'] = match_id
@@ -499,7 +512,7 @@ def get_tracker_data(name, tag):
         # This endpoint specifically returns the aggregated data for a playlist
         segments_url = f"https://api.tracker.gg/api/v2/valorant/standard/profile/riot/{encoded_name}%23{encoded_tag}/segments/playlist?playlist=competitive"
         print(f"Tracker.gg: Fetching lifetime segments for {name}#{tag}...", flush=True)
-        resp = c_requests.get(segments_url, headers=headers, impersonate="chrome120", timeout=15)
+        resp = c_requests.get(segments_url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
         if resp.status_code == 200:
             data = resp.json()
             if data.get('data'):
@@ -509,7 +522,7 @@ def get_tracker_data(name, tag):
         # 2. Secondary Attempt: Overview
         print(f"Tracker.gg: Direct segments failed or empty (Code: {resp.status_code}). Trying profile overview...", flush=True)
         url = f"https://api.tracker.gg/api/v2/valorant/standard/profile/riot/{encoded_name}%23{encoded_tag}"
-        resp = c_requests.get(url, headers=headers, impersonate="chrome120", timeout=15)
+        resp = c_requests.get(url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
         if resp.status_code == 200:
             return resp.json()
         
@@ -530,9 +543,11 @@ def get_tracker_agents(name, tag):
         'Origin': 'https://tracker.gg'
     }
     try:
-        resp = c_requests.get(url, headers=headers, impersonate="chrome120", timeout=15)
-        if resp.status_code == 200:
-            return resp.json()
+        log_debug(f"Fetching Tracker.gg for {name}#{tag} (timeout={API_TIMEOUT}s)")
+        response = c_requests.get(url, headers=headers, impersonate="chrome110", timeout=API_TIMEOUT)
+        
+        if response.status_code == 200:
+            return response.json()
     except Exception as e:
         print(f"Error fetching agent data for {name}: {e}", flush=True)
     return None
@@ -811,19 +826,16 @@ def parse_tracker_data(t_data, name, tag, rank="Career Total", tier_id=0):
 
 # Restore Helper Functions
 HENRIK_API_URL = 'https://api.henrikdev.xyz/valorant'
-API_KEY = 'HDEV-9fa87590-5b88-4101-90ed-fe98a917f908'
 
 def fetch_henrik(endpoint):
     url = f"{HENRIK_API_URL}{endpoint}"
-    headers = {
-        'Authorization': API_KEY,
-        'User-Agent': 'ValorantStatsBackend/1.0'
-    }
+    # Use headers with modern API keys if needed
+    headers = {"Authorization": HENRIK_API_KEY} if HENRIK_API_KEY else {}
     try:
-        response = requests.get(url, headers=headers, timeout=20)
-        return response
+        log_debug(f"Fetching HenrikDev: {endpoint} (timeout={API_TIMEOUT}s)")
+        return requests.get(url, headers=headers, timeout=API_TIMEOUT)
     except Exception as e:
-        print(f"Request failed: {e}", flush=True)
+        log_debug(f"HenrikDev API Error: {e}")
         return None
 
 def get_account_region(name, tag):
