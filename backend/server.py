@@ -124,6 +124,7 @@ def init_db():
     
     cursor = conn.cursor() if is_postgres else conn
     
+    # Tables creation
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS users (
             id {id_type},
@@ -133,6 +134,16 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Auto-migration for SQLite if table exists but email_hash is missing
+    if not is_postgres:
+        try:
+            cursor.execute("SELECT email_hash FROM users LIMIT 1")
+        except:
+            log_debug("Migrating SQLite: adding email_hash column...")
+            cursor.execute("ALTER TABLE users ADD COLUMN email_hash TEXT UNIQUE")
+            conn.commit()
+
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS valorant_accounts (
             id {id_type},
@@ -147,6 +158,23 @@ def init_db():
             UNIQUE(user_id, name, tag)
         )
     ''')
+    
+    # More SQLite migrations
+    if not is_postgres:
+        new_cols = [
+            ("valorant_accounts", "puuid", "TEXT"),
+            ("valorant_accounts", "account_level", "INTEGER DEFAULT 0"),
+            ("valorant_accounts", "region", "TEXT DEFAULT 'latam'"),
+            ("valorant_accounts", "card_small", "TEXT")
+        ]
+        for table, col, ctype in new_cols:
+            try:
+                cursor.execute(f"SELECT {col} FROM {table} LIMIT 1")
+            except:
+                log_debug(f"Migrating SQLite: adding {col} to {table}...")
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ctype}")
+                conn.commit()
+
     cursor.execute(f'''
         CREATE TABLE IF NOT EXISTS manual_matches (
             id {id_type},
@@ -1209,6 +1237,34 @@ def aggregate_accounts():
         'highest_rank_image': highest_rank_image,
         'agents': processed_agents
     })
+
+@app.route('/api/debug/db')
+def debug_db():
+    db_url = os.environ.get('DATABASE_URL')
+    status = {
+        'HAS_POSTGRES': HAS_POSTGRES,
+        'DATABASE_URL_SET': bool(db_url),
+        'DATABASE_URL_TYPE': db_url[:10] + "..." if db_url else "None",
+        'VERSION': '1.0.3-schema-fix'
+    }
+    try:
+        conn = get_db_connection()
+        status['CONNECTION'] = 'OK'
+        status['DB_TYPE'] = str(type(conn))
+        
+        # Check users table columns
+        if HAS_POSTGRES and db_url:
+            cur = conn.cursor()
+            cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'users'")
+            status['USERS_COLUMNS'] = [row[0] if isinstance(row, tuple) else row['column_name'] for row in cur.fetchall()]
+        else:
+            cur = conn.execute("PRAGMA table_info(users)")
+            status['USERS_COLUMNS'] = [row[1] for row in cur.fetchall()]
+        conn.close()
+    except Exception as e:
+        status['CONNECTION'] = f'FAILED: {str(e)}'
+    
+    return jsonify(status)
 
 if __name__ == '__main__':
     print("="*50)
