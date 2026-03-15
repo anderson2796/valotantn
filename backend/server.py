@@ -104,7 +104,7 @@ def get_db_connection():
                     return cur
                 conn.execute = pg_execute
             log_debug("Postgres connected successfully")
-            return conn
+            return conn, True
         except Exception as e:
             log_debug(f"Postgres connect failed: {e}")
     
@@ -112,16 +112,15 @@ def get_db_connection():
     log_debug(f"Falling back to SQLite. (HAS_POSTGRES: {HAS_POSTGRES}, URL exists: {bool(db_url)})")
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
-    return conn
+    return conn, False
 
 def init_db():
-    conn = get_db_connection()
-    db_url = os.environ.get('DATABASE_URL')
-    is_postgres = db_url and HAS_POSTGRES
+    conn, is_postgres = get_db_connection()
     
     id_type = "SERIAL PRIMARY KEY" if is_postgres else "INTEGER PRIMARY KEY AUTOINCREMENT"
     text_type = "TEXT"
     
+    # Use connection directly for SQLite shortcuts, cursor for Postgres
     cursor = conn.cursor() if is_postgres else conn
     
     # Tables creation
@@ -197,7 +196,8 @@ def init_db():
 init_db()
 
 def get_db():
-    return get_db_connection()
+    conn, _ = get_db_connection()
+    return conn
 
 def token_required(f):
     @wraps(f)
@@ -1245,15 +1245,15 @@ def debug_db():
         'HAS_POSTGRES': HAS_POSTGRES,
         'DATABASE_URL_SET': bool(db_url),
         'DATABASE_URL_TYPE': db_url[:10] + "..." if db_url else "None",
-        'VERSION': '1.0.3-schema-fix'
+        'VERSION': '1.0.4-fallback-fix'
     }
     try:
-        conn = get_db_connection()
+        conn, is_pg = get_db_connection()
         status['CONNECTION'] = 'OK'
-        status['DB_TYPE'] = str(type(conn))
+        status['DB_TYPE'] = "PostgreSQL" if is_pg else "SQLite"
         
         # Check users table columns
-        if HAS_POSTGRES and db_url:
+        if is_pg:
             cur = conn.cursor()
             cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'users'")
             status['USERS_COLUMNS'] = [row[0] if isinstance(row, tuple) else row['column_name'] for row in cur.fetchall()]
