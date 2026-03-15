@@ -86,7 +86,17 @@ def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     if db_url and HAS_POSTGRES:
         # Use Postgres (Production)
-        
+                # Use Postgres (Production)
+                conn = psycopg2.connect(db_url)
+                if not hasattr(conn, 'execute'):
+                                def pg_execute(sql, params=()):
+                                                    sql = sql.replace('?', '%s')
+                                                    cur = conn.cursor(cursor_factory=RealDictCursor) if 'SELECT' in sql.upper() else conn.cursor()
+                                                    cur.execute(sql, params)
+                                                    if not 'SELECT' in sql.upper(): conn.commit()
+                                                                        return cur
+                                                conn.execute = pg_execute
+                            return conn
     else:
         # Use SQLite (Local)
         conn = sqlite3.connect('database.db')
