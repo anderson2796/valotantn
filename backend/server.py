@@ -542,6 +542,7 @@ RANK_ORDER = {
 
 # Rank to Tier ID for Icons
 RANK_TO_TIER = {
+    # Arabic numerals (from Tracker.gg)
     "Iron 1": 3, "Iron 2": 4, "Iron 3": 5,
     "Bronze 1": 6, "Bronze 2": 7, "Bronze 3": 8,
     "Silver 1": 9, "Silver 2": 10, "Silver 3": 11,
@@ -550,6 +551,15 @@ RANK_TO_TIER = {
     "Diamond 1": 18, "Diamond 2": 19, "Diamond 3": 20,
     "Ascendant 1": 21, "Ascendant 2": 22, "Ascendant 3": 23,
     "Immortal 1": 24, "Immortal 2": 25, "Immortal 3": 26,
+    # Roman numerals (from Henrik API)
+    "Iron I": 3, "Iron II": 4, "Iron III": 5,
+    "Bronze I": 6, "Bronze II": 7, "Bronze III": 8,
+    "Silver I": 9, "Silver II": 10, "Silver III": 11,
+    "Gold I": 12, "Gold II": 13, "Gold III": 14,
+    "Platinum I": 15, "Platinum II": 16, "Platinum III": 17,
+    "Diamond I": 18, "Diamond II": 19, "Diamond III": 20,
+    "Ascendant I": 21, "Ascendant II": 22, "Ascendant III": 23,
+    "Immortal I": 24, "Immortal II": 25, "Immortal III": 26,
     "Radiant": 27, "Unrated": 0
 }
 
@@ -1379,9 +1389,15 @@ def aggregate_accounts(current_user):
     processed_agents.sort(key=lambda x: x['matches'], reverse=True)
 
     tier_id = RANK_TO_TIER.get(highest_rank_name, 0)
+    if tier_id == 0 and highest_rank_name != 'Unrated':
+        # Try case-insensitive match
+        for k, v in RANK_TO_TIER.items():
+            if k.lower() == highest_rank_name.lower():
+                tier_id = v
+                break
     rank_img = f"https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/{tier_id}/largeicon.png"
     if tier_id == 0:
-        rank_img = "https://media.valorant-api.com/playercards/9fb34440-4f0b-49dc-3cb7-578f797d1000/displayicon.png"
+        rank_img = "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/0/largeicon.png"
 
     res_final = {
         'total': total,
@@ -1446,8 +1462,10 @@ def process_account(acc):
             p = parse_tracker_data(t_data, name, tag)
             if p and p.get('stats'):
                 s = p['stats']
+                saved_level = local_total['level']  # preserve level from account_level
                 for k in local_total:
-                    if k in s: local_total[k] = s[k]
+                    if k in s and k != 'level': local_total[k] = s[k]  # never overwrite level
+                local_total['level'] = saved_level
                 local_total['hits_total'] = s.get('hits_head',0) + s.get('hits_body',0) + s.get('hits_leg',0)
                 local_total['kast_weighted'] = s.get('kastValue',0) * s.get('rounds',0)
                 local_total['dd_weighted'] = s.get('dd',0) * s.get('rounds',0)
