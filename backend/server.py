@@ -1285,8 +1285,14 @@ def aggregate_accounts(current_user):
     if u_id in AGGREGATE_CACHE:
         entry = AGGREGATE_CACHE[u_id]
         if now < entry['expires']:
-            log_debug(f"Serving aggregate from cache for user {u_id}")
-            return jsonify(entry['data'])
+            cached = entry['data']
+            # Don't serve empty cache
+            if cached.get('total', {}).get('games', 0) > 0:
+                log_debug(f"Serving aggregate from cache for user {u_id}")
+                return jsonify(cached)
+            else:
+                log_debug(f"Cache for user {u_id} is empty/stale, re-fetching")
+                del AGGREGATE_CACHE[u_id]
 
     data_in = request.json
     accounts = data_in.get('accounts', [])
@@ -1485,12 +1491,22 @@ def process_account(acc):
         else:
             print(f"[AGG] Tracker FAILED for {name}#{tag} - falling back to Henrik matches", flush=True)
 
-        # 3. Henrik Fallback (Recent)
-        m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
-        if m_resp and m_resp.status_code == 200:
-            matches = m_resp.json().get('data', [])
-            fb_agents = {}
-            for m in matches:
+        # 3. Henrik Fallback (Recent matches - try competitive then unrated)
+        enc_name = urllib.parse.quote(name)
+        enc_tag = urllib.parse.quote(tag)
+        henrik_matches = []
+        for mode in ['competitive', 'unrated', 'deathmatch']:
+            m_resp = fetch_henrik(f"/v3/matches/{region}/{enc_name}/{enc_tag}?mode={mode}&size=20")
+            if m_resp and m_resp.status_code == 200:
+                henrik_matches = m_resp.json().get('data', [])
+                if henrik_matches:
+                    print(f"[AGG] Henrik {mode} matches: {len(henrik_matches)} found", flush=True)
+                    break
+            print(f"[AGG] Henrik {mode} failed or empty", flush=True)
+        
+        print(f"[AGG] Total Henrik matches to process: {len(henrik_matches)}", flush=True)
+        fb_agents = {}
+        for m in henrik_matches:
                 p = next((x for x in m.get('players', {}).get('all_players', []) if x['name'].lower()==name.lower() and x['tag'].lower()==tag.lower()), None)
                 if p:
                     ps = p.get('stats', {})
