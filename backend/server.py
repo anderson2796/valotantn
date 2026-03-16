@@ -420,16 +420,17 @@ def login():
     if not user:
         log_debug("Login failed: User record not found.")
         return jsonify({'error': 'Credenciales inválidas'}), 401
+
+    if check_password_hash(user['password_hash'], password):
         token = jwt.encode({
             'user_id': user['id'],
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
         }, app.config['SECRET_KEY'], algorithm="HS256")
-        
-        # User decrypted email in response if needed
         decrypted_email = security.decrypt(user['email'])
         return jsonify({'token': token, 'email': decrypted_email})
-        
-    return jsonify({'error': 'Invalid email or password'}), 401
+    
+    log_debug("Login failed: Wrong password.")
+    return jsonify({'error': 'Credenciales inválidas'}), 401
 
 @app.route('/api/user/data', methods=['GET'])
 @token_required
