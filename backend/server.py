@@ -1510,40 +1510,38 @@ def process_account(acc):
         print(f"[AGG] Total Henrik matches to process: {len(henrik_matches)}", flush=True)
         fb_agents = {}
         for m in henrik_matches:
-                p = next((x for x in m.get('players', {}).get('all_players', []) if x['name'].lower()==name.lower() and x['tag'].lower()==tag.lower()), None)
-                if p:
-                    ps = p.get('stats', {})
-                    r_p = m.get('metadata', {}).get('rounds_played', 0)
-                    local_total['games'] += 1
-                    local_total['kills'] += ps.get('kills', 0)
-                    local_total['deaths'] += ps.get('deaths', 0)
-                    local_total['assists'] += ps.get('assists', 0)
-                    local_total['damage'] += ps.get('damage', 0)
-                    local_total['rounds'] += r_p
-                    local_total['score'] += ps.get('score', 0)
-                    local_total['headshots'] += ps.get('headshots', 0)
-                    local_total['hits_total'] += (ps.get('headshots',0)+ps.get('bodyshots',0)+ps.get('legshots',0))
-                    
-                    t_win = 'red' if m.get('teams',{}).get('red',{}).get('has_won') else 'blue'
-                    if p.get('team','').lower() == t_win: local_total['wins'] += 1
-                    else: local_total['losses'] += 1
-                    
-                    char = p.get('character', 'Unknown')
-                    if char not in fb_agents:
-                        fb_agents[char] = {
-                            'name': char, 'icon': p.get('assets',{}).get('agent',{}).get('small'),
-                            'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
-                            'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
-                        }
-                    ga = fb_agents[char]
-                    ga['matches'] += 1
-                    ga['kills'] += ps.get('kills', 0)
-                    ga['deaths'] += ps.get('deaths', 0)
-                    ga['damage'] += ps.get('damage', 0)
-                    ga['rounds'] += r_p
-                    ga['score'] += ps.get('score', 0)
-                    if p.get('team','').lower() == t_win: ga['wins'] += 1
-            local_agents = list(fb_agents.values())
+            p = next((x for x in m.get('players', {}).get('all_players', []) if x['name'].lower()==name.lower() and x['tag'].lower()==tag.lower()), None)
+            if p:
+                ps = p.get('stats', {})
+                r_p = m.get('metadata', {}).get('rounds_played', 0)
+                local_total['games'] += 1
+                local_total['kills'] += ps.get('kills', 0)
+                local_total['deaths'] += ps.get('deaths', 0)
+                local_total['assists'] += ps.get('assists', 0)
+                local_total['damage'] += ps.get('damage', 0)
+                local_total['rounds'] += r_p
+                local_total['score'] += ps.get('score', 0)
+                local_total['headshots'] += ps.get('headshots', 0)
+                local_total['hits_total'] += (ps.get('headshots',0)+ps.get('bodyshots',0)+ps.get('legshots',0))
+                t_win = 'red' if m.get('teams',{}).get('red',{}).get('has_won') else 'blue'
+                if p.get('team','').lower() == t_win: local_total['wins'] += 1
+                else: local_total['losses'] += 1
+                char = p.get('character', 'Unknown')
+                if char not in fb_agents:
+                    fb_agents[char] = {
+                        'name': char, 'icon': p.get('assets',{}).get('agent',{}).get('small'),
+                        'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
+                        'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
+                    }
+                ga = fb_agents[char]
+                ga['matches'] += 1
+                ga['kills'] += ps.get('kills', 0)
+                ga['deaths'] += ps.get('deaths', 0)
+                ga['damage'] += ps.get('damage', 0)
+                ga['rounds'] += r_p
+                ga['score'] += ps.get('score', 0)
+                if p.get('team','').lower() == t_win: ga['wins'] += 1
+        local_agents = list(fb_agents.values())
 
     except Exception as e:
         log_debug(f"Process account failed for {acc.get('name')}: {e}")
