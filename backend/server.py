@@ -870,12 +870,22 @@ def fetch_henrik(endpoint):
         return None
 
 def get_account_region(name, tag):
-    """Determine region for the account using HenrikDev v1/account"""
-    resp = fetch_henrik(f"/v1/account/{name}/{tag}")
+    """Determine region for the account using HenrikDev v1/account or v2 fallback"""
+    safe_name = urllib.parse.quote(name)
+    safe_tag = urllib.parse.quote(tag)
+    
+    # Try V1
+    resp = fetch_henrik(f"/v1/account/{safe_name}/{safe_tag}")
     if resp and resp.status_code == 200:
-        region = resp.json().get('data', {}).get('region', 'na')
-        return region
-    return 'na'  # Default to NA if can't detect
+        return resp.json().get('data', {}).get('region', 'na')
+    
+    # Try V2 fallback
+    log_debug(f"Region lookup: V1 failed ({resp.status_code if resp else 'No Resp'}), trying V2...")
+    resp = fetch_henrik(f"/v2/account/{safe_name}/{safe_tag}")
+    if resp and resp.status_code == 200:
+        return resp.json().get('data', {}).get('region', 'na')
+        
+    return 'na' # Default
 
 def get_stats_dict(name, tag):
     # Strategy 1: Try Tracker.gg (Lifetime)
@@ -930,23 +940,47 @@ def get_v1_account(name, tag):
     # Re-encode for the actual API call
     safe_name = urllib.parse.quote(name)
     safe_tag = urllib.parse.quote(tag)
-    print(f"Validating account {name}#{tag} (safe: {safe_name}#{safe_tag})...", flush=True)
+    print(f"Validating account {name}#{tag}...", flush=True)
+    
+    # Stage 1: HenrikDev V1
     resp = fetch_henrik(f"/v1/account/{safe_name}/{safe_tag}")
     if resp and resp.status_code == 200:
         return jsonify(resp.json().get('data', {}))
     
+    # Stage 2: HenrikDev V2 Fallback (Better for console or newer accounts)
+    log_debug(f"Lookup: Henrik V1 failed ({resp.status_code if resp else 'No Resp'}), trying V2...")
+    resp_v2 = fetch_henrik(f"/v2/account/{safe_name}/{safe_tag}")
+    if resp_v2 and resp_v2.status_code == 200:
+        return jsonify(resp_v2.json().get('data', {}))
+        
+    # Stage 3: Tracker.gg Fallback (Minimal info but clarifies existence)
+    log_debug("Lookup: Henrik V2 failed, trying Tracker.gg...")
+    t_data = get_tracker_data(name, tag)
+    if t_data and t_data.get('data'):
+        p_data = t_data['data']
+        # Synthesize a Henrik-like 'data' object
+        metadata = p_data.get('metadata', {})
+        return jsonify({
+            'puuid': p_data.get('platformInfo', {}).get('platformUserIdentifier'),
+            'name': name,
+            'tag': tag,
+            'account_level': 0, # Tracker doesn't easily expose this in overview
+            'region': 'na', # Tracker gives country, not Riot region
+            'card': {'small': metadata.get('avatarUrl')}
+        })
+
+    # Error reporting
     err_msg = 'Account not found'
     status_code = 404
-    if resp:
-        if resp.status_code == 429:
+    if resp_v2: # Use V2 response for more accurate status
+        if resp_v2.status_code == 429:
             err_msg = 'API Rate Limited (Henrik). Try again in a minute.'
             status_code = 429
-        elif resp.status_code == 403:
-            err_msg = 'API Access Forbidden (Key error or restriction).'
+        elif resp_v2.status_code == 403:
+            err_msg = 'API Access Forbidden.'
             status_code = 403
         else:
-            err_msg = f'HenrikDev Error: {resp.status_code}'
-            status_code = resp.status_code
+            err_msg = f'Account not found (V2 Code: {resp_v2.status_code})'
 
     return jsonify({'error': err_msg}), status_code
 
