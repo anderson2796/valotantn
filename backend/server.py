@@ -1503,6 +1503,8 @@ def process_account(acc):
         log_debug(f"Process account failed for {acc.get('name')}: {e}")
 
     return local_total, local_agents, best_rank, best_tier
+
+@app.route('/api/debug/db')
 def debug_db():
     db_url = os.environ.get('DATABASE_URL')
     status = {
