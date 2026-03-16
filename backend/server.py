@@ -17,8 +17,8 @@ import hashlib
 import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from concurrent.futures import ThreadPoolExecutor, as_completed
-log_debug("Imports initialized")
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -35,7 +35,6 @@ except Exception:
     HAS_CURL_CFFI = False
 
 def log_debug(msg):
-    # Only print to stdout for production safety (no file writes)
     print(f"[DEBUG] {msg}", flush=True)
 
 # Set base directory for static files (project root)
