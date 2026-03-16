@@ -474,11 +474,11 @@ def add_user_account(current_user):
             (current_user['id'], enc_name, enc_tag, enc_puuid, data.get('account_level', 0), data.get('region', 'latam'), data.get('card', {}).get('small', ''))
         )
         conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({'error': 'Account already added'}), 400
     except Exception as e:
+        err_str = str(e).lower()
         conn.close()
+        if 'unique' in err_str or 'duplicate' in err_str:
+            return jsonify({'error': 'Account already added'}), 400
         return jsonify({'error': str(e)}), 500
     conn.close()
     return jsonify({'message': 'Account added successfully'}), 201
@@ -1447,14 +1447,19 @@ def process_account(acc):
         tag = acc.get('tag')
         region = acc.get('region', 'latam')
         local_total['level'] = int(acc.get('account_level', 0))
+        print(f"[AGG] Processing: {name}#{tag} region={region} level={local_total['level']}", flush=True)
 
-        # 1. Rank
+        # 1. Rank from Henrik MMR
         mmr_resp = fetch_henrik(f"/v2/mmr/{region}/{name}/{tag}")
         if mmr_resp and mmr_resp.status_code == 200:
             m_data = mmr_resp.json().get('data', {})
             h = m_data.get('highest_rank', {})
             best_rank = h.get('patched_tier', 'Unrated')
             best_tier = h.get('tier', -1)
+            print(f"[AGG] Rank OK: {best_rank} (tier {best_tier})", flush=True)
+        else:
+            code = mmr_resp.status_code if mmr_resp else 'None'
+            print(f"[AGG] Rank FAILED: HTTP {code}", flush=True)
 
         # 2. Tracker.gg Stats (Lifetime)
         t_data = get_tracker_data(name, tag)
@@ -1462,6 +1467,7 @@ def process_account(acc):
             p = parse_tracker_data(t_data, name, tag)
             if p and p.get('stats'):
                 s = p['stats']
+                print(f"[AGG] Tracker OK: {s.get('kills',0)}K {s.get('deaths',0)}D {s.get('games',0)}G", flush=True)
                 saved_level = local_total['level']  # preserve level from account_level
                 for k in local_total:
                     if k in s and k != 'level': local_total[k] = s[k]  # never overwrite level
@@ -1474,6 +1480,10 @@ def process_account(acc):
                 a_raw = get_tracker_agents(name, tag)
                 local_agents = parse_agent_segments(a_raw) if a_raw else get_agent_stats_fallback(name, tag, region)
                 return local_total, local_agents, best_rank, best_tier
+            else:
+                print(f"[AGG] Tracker data empty after parse for {name}#{tag}", flush=True)
+        else:
+            print(f"[AGG] Tracker FAILED for {name}#{tag} - falling back to Henrik matches", flush=True)
 
         # 3. Henrik Fallback (Recent)
         m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
