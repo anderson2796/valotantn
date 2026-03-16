@@ -63,7 +63,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro
 
 # Configuration
 HENRIK_API_KEY = os.environ.get('HENRIK_API_KEY', '')
-API_TIMEOUT = 12 # Seconds to wait for external APIs
+API_TIMEOUT = 10 # Optimized: stay within Render 30s limit
 
 # Security Manager for sensitive data encryption
 class SecurityManager:
@@ -915,8 +915,8 @@ def get_stats_dict(name, tag):
     try:
         region = get_account_region(name, tag)
         print(f"  Fetch region: {region}", flush=True)
-        # Try size=1000
-        resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=1000")
+        # Try size=20 (Optimized from 1000)
+        resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
         if not resp or resp.status_code != 200: 
             print(f"  Fetch failed: {resp.status_code if resp else 'No Resp'}", flush=True)
             return None
@@ -1048,8 +1048,8 @@ def get_profile(name, tag):
     print("Tracker.gg failed, falling back to HenrikDev...", flush=True)
 
     try:
-        # Fetch Matches
-        matches_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=100")
+        # Fetch Matches (Optimized size for performance)
+        matches_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
         all_matches = []
         if matches_resp and matches_resp.status_code == 200:
             all_matches = matches_resp.json().get('data', [])
@@ -1299,7 +1299,7 @@ def aggregate_accounts():
                 local_agents = get_agent_stats_fallback(name, tag, region=region)
         else:
             log_debug(f"    Fallback for {name}#{tag}")
-            m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=100")
+            m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
             if m_resp and m_resp.status_code == 200:
                 matches = m_resp.json().get('data', [])
                 fb_agents_map = {}
