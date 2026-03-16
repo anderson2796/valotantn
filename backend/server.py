@@ -29,8 +29,10 @@ except Exception as e:
 
 try:
     from curl_cffi import requests as c_requests
+    HAS_CURL_CFFI = True
 except Exception:
     c_requests = requests # Fallback to standard requests if curl_cffi fails
+    HAS_CURL_CFFI = False
 
 def log_debug(msg):
     # Only print to stdout for production safety (no file writes)
@@ -52,6 +54,10 @@ def serve_index():
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory(BASE_DIR, path)
+
+@app.route('/api/health')
+def health_check():
+    return jsonify({'status': 'healthy', 'timestamp': datetime.datetime.utcnow().isoformat()}), 200
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro_para_valorantn')
 
@@ -541,7 +547,10 @@ def get_tracker_data(name, tag):
         # This endpoint specifically returns the aggregated data for a playlist
         segments_url = f"https://api.tracker.gg/api/v2/valorant/standard/profile/riot/{encoded_name}%23{encoded_tag}/segments/playlist?playlist=competitive"
         print(f"Tracker.gg: Fetching lifetime segments for {name}#{tag}...", flush=True)
-        resp = c_requests.get(segments_url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
+        if HAS_CURL_CFFI:
+            resp = c_requests.get(segments_url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
+        else:
+            resp = c_requests.get(segments_url, headers=headers, timeout=API_TIMEOUT)
         if resp.status_code == 200:
             data = resp.json()
             if data.get('data'):
@@ -551,7 +560,10 @@ def get_tracker_data(name, tag):
         # 2. Secondary Attempt: Overview
         print(f"Tracker.gg: Direct segments failed or empty (Code: {resp.status_code}). Trying profile overview...", flush=True)
         url = f"https://api.tracker.gg/api/v2/valorant/standard/profile/riot/{encoded_name}%23{encoded_tag}"
-        resp = c_requests.get(url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
+        if HAS_CURL_CFFI:
+            resp = c_requests.get(url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
+        else:
+            resp = c_requests.get(url, headers=headers, timeout=API_TIMEOUT)
         if resp.status_code == 200:
             return resp.json()
         
@@ -573,7 +585,10 @@ def get_tracker_agents(name, tag):
     }
     try:
         log_debug(f"Fetching Tracker.gg for {name}#{tag} (timeout={API_TIMEOUT}s)")
-        response = c_requests.get(url, headers=headers, impersonate="chrome110", timeout=API_TIMEOUT)
+        if HAS_CURL_CFFI:
+            response = c_requests.get(url, headers=headers, impersonate="chrome110", timeout=API_TIMEOUT)
+        else:
+            response = c_requests.get(url, headers=headers, timeout=API_TIMEOUT)
         
         if response.status_code == 200:
             return response.json()
