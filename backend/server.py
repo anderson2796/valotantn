@@ -17,8 +17,8 @@ import hashlib
 import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+log_debug("Imports initialized")
 try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -103,17 +103,34 @@ class SecurityManager:
 security = SecurityManager()
 
 def get_db_connection():
+    # 1. Detect environment safely
+    is_render = 'RENDER' in os.environ
+    if not is_render:
+        try:
+            from flask import has_request_context, request
+            if has_request_context():
+                is_render = request.host and ('.onrender.com' in request.host)
+        except:
+            pass
+            
     db_url = os.environ.get('DATABASE_URL')
-    is_render = 'RENDER' in os.environ or '.onrender.com' in request.host_url
     
+    if is_render:
+        if not db_url:
+            log_debug("CRITICAL: DATABASE_URL is missing on Render. Persistence will NOT work.")
+            # We allow it to fallback to SQLite locally, but on Render it MUST fail or warn
+        if not HAS_POSTGRES:
+            log_debug("CRITICAL: psycopg2-binary is missing. Cannot use Postgres.")
+
     if db_url and HAS_POSTGRES:
         try:
+            # Fix postgres:// URLs
             if db_url.startswith("postgres://"):
                 db_url = db_url.replace("postgres://", "postgresql://", 1)
                 
             log_debug(f"Connecting to PostgreSQL (is_render={is_render})...")
-            # Increased timeout for connection to 15s for Neon stability
-            conn = psycopg2.connect(db_url, connect_timeout=15)
+            # 8s timeout for connection
+            conn = psycopg2.connect(db_url, connect_timeout=8)
             
             if not hasattr(conn, 'execute'):
                 def pg_execute(sql, params=()):
@@ -129,14 +146,15 @@ def get_db_connection():
             log_debug("Postgres connected successfully")
             return conn, True
         except Exception as e:
-            log_debug(f"Postgres connect failed: {e}")
+            log_debug(f"Postgres connection failed: {e}")
             if is_render:
-                print(f"CRITICAL: Postgres failed on Render! Cannot fallback to SQLite safely.", flush=True)
-                # We still return for now but with a big warning in logs
+                # Forced failure to avoid transient SQLite mode
+                raise ConnectionError(f"Database unavailable on Render: {e}")
     
-    # Fallback to SQLite (Only for local dev)
-    log_debug("Using SQLite fallback (DANGEROUS IN PROD).")
-    conn = sqlite3.connect('database.db')
+    # Local SQLite Fallback
+    log_debug("Using SQLite fallback.")
+    db_path = os.path.join(BASE_DIR, 'backend', 'database.db') if is_render else 'database.db'
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn, False
 
@@ -1204,26 +1222,67 @@ def get_profile(name, tag):
         return jsonify(profile_res)
 
     except Exception as e:
-        print(f"Error serving profile: {e}", flush=True)
-        import traceback; traceback.print_exc()
+        log_debug(f"    Fallback for {name}#{tag}")
+        m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
+        if m_resp and m_resp.status_code == 200:
+            matches = m_resp.json().get('data', [])
+            fb_agents_map = {}
+            for m in matches:
+                p = next((x for x in m.get('players', {}).get('all_players', [])
+                        if x['name'].lower() == name.lower() and x['tag'].lower() == tag.lower()), None)
+                if p:
+                    ps = p.get('stats', {})
+                    r_p = m.get('metadata', {}).get('rounds_played', 0)
+                    local_total['games'] += 1
+                    local_total['kills'] += ps.get('kills', 0)
+                    local_total['deaths'] += ps.get('deaths', 0)
+                    local_total['assists'] += ps.get('assists', 0)
+                    local_total['damage'] += ps.get('damage', 0)
+                    local_total['rounds'] += r_p
+                    local_total['score'] += ps.get('score', 0)
+                    local_total['headshots'] += ps.get('headshots', 0)
+                    local_total['hits_total'] += (ps.get('headshots', 0) + ps.get('bodyshots', 0) + ps.get('legshots', 0))
+
+                    my_t = p.get('team', '').lower()
+                    wt = 'red' if m.get('teams', {}).get('red', {}).get('has_won') else 'blue'
+                    if my_t == wt: local_total['wins'] += 1
+                    else: local_total['losses'] += 1
+
+                    char = p.get('character', 'Unknown')
+                    if char not in fb_agents_map:
+                        assets = p.get('assets') or {}
+                        agent_assets = assets.get('agent') or {}
+                        fb_agents_map[char] = {
+                            'name': char, 'icon': agent_assets.get('small'),
+                            'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
+                            'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
+                        }
+                    ag = fb_agents_map[char]
+                    ag['matches'] += 1
+                    ag['kills'] += ps.get('kills', 0)
+                    ag['deaths'] += ps.get('deaths', 0)
+                    ag['damage'] += ps.get('damage', 0)
+                    ag['rounds'] += r_p
+                    ag['score'] += ps.get('score', 0)
+            local_agents = list(fb_agents_map.values())
+
+    return local_total, local_agents, best_rank, best_tier
 
 
 @app.route('/api/aggregate', methods=['POST'])
 @token_required
 def aggregate_accounts(current_user):
-    # Check cache first (5 minute TTL)
     u_id = current_user['id']
     now = time.time()
     if u_id in AGGREGATE_CACHE:
         entry = AGGREGATE_CACHE[u_id]
         if now < entry['expires']:
-            log_debug(f"Serving AGGREGATE from cache for user {u_id}")
+            log_debug(f"Serving aggregate from cache for user {u_id}")
             return jsonify(entry['data'])
 
     data_in = request.json
     accounts = data_in.get('accounts', [])
-    log_debug(f"\n>>> AGGREGATION START: Processing {len(accounts)} entries")
-    log_debug(f">>> Data received: {data_in}")
+    log_debug(f"AGGREGATION START: {len(accounts)} accounts")
     
     total = {
         'games': 0, 'wins': 0, 'losses': 0,
@@ -1231,31 +1290,130 @@ def aggregate_accounts(current_user):
         'damage': 0, 'rounds': 0, 'level': 0,
         'clutches': 0, 'flawless': 0, 'score': 0,
         'headshots': 0, 'hits_total': 0, 
-        'kast_weighted': 0.0,
-        'dd_weighted': 0.0
+        'kast_weighted': 0.0, 'dd_weighted': 0.0
     }
     
     highest_rank_name = "Unrated"
     highest_level = 0
+    highest_tier = -1
     global_agents = {}
     
-    def process_account(acc):
-        local_total = {
-            'games': 0, 'wins': 0, 'losses': 0,
-            'kills': 0, 'deaths': 0, 'assists': 0,
-            'damage': 0, 'rounds': 0, 'score': 0,
-            'headshots': 0, 'hits_total': 0, 
-            'clutches': 0, 'flawless': 0,
-            'kast_weighted': 0.0, 'dd_weighted': 0.0,
-            'level': 0
-        }
-        local_agents = []
-        best_rank = None
-        best_tier = -1
+    try:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            # Note: process_account is defined globally below
+            future_to_acc = {executor.submit(process_account, acc): acc for acc in accounts}
 
+            for future in as_completed(future_to_acc):
+                acc = future_to_acc[future]
+                try:
+                    to_val = API_TIMEOUT + 5
+                    result = future.result(timeout=to_val)
+                    if not result: continue
+
+                    l_total, l_agents, b_rank, b_tier = result
+
+                    for k in total:
+                        if k in l_total: total[k] += l_total[k]
+
+                    if b_tier is not None and b_tier > highest_tier:
+                        highest_tier = b_tier
+                        highest_rank_name = b_rank
+
+                    if l_total.get('level', 0) > highest_level:
+                        highest_level = l_total['level']
+
+                    for a in l_agents:
+                        char = a['name']
+                        if char not in global_agents:
+                            global_agents[char] = {
+                                'name': char, 'icon': a['icon'],
+                                'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
+                                'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
+                            }
+                        g = global_agents[char]
+                        g['matches'] += a['matches']
+                        g['wins'] += a['wins']
+                        g['kills'] += a.get('kills', 0)
+                        g['deaths'] += a.get('deaths', 0)
+                        g['damage'] += a.get('damage', 0)
+                        g['rounds'] += a.get('rounds', 0)
+                        g['score'] += a.get('score', 0)
+                        g['playtime_seconds'] += a.get('playtime_seconds', 0)
+
+                except Exception as e:
+                    log_debug(f"Error processing account {acc.get('name')}: {e}")
+
+    except Exception as e:
+        log_debug(f"ThreadPool error: {e}")
+        return jsonify({'error': 'Error en procesamiento paralelo', 'detail': str(e)}), 500
+
+    games = total['games'] if total['games'] > 0 else 1
+    rounds_total = total['rounds'] if total['rounds'] > 0 else 1
+    deaths_total = total['deaths'] if total['deaths'] > 0 else 1
+    hits_total = total['hits_total'] if total['hits_total'] > 0 else 1
+
+    derived = {
+        'winRate': round(float(total['wins'] / games) * 100, 1),
+        'kd': round(float(total['kills'] / deaths_total), 2),
+        'kpr': round(float(total['kills'] / rounds_total), 2),
+        'adr': round(float(total['damage'] / rounds_total), 1),
+        'acs': round(float(total['score'] / rounds_total), 1),
+        'hs': round(float(total['headshots'] / hits_total) * 100, 1) if total['headshots'] > 0 else 0.0,
+        'kast': round(float(total['kast_weighted'] / rounds_total), 1),
+        'kad': round(float(total['kills'] + total['assists']) / deaths_total, 2),
+        'dd': round(float(total['dd_weighted'] / rounds_total), 1)
+    }
+
+    processed_agents = []
+    for char, g in global_agents.items():
+        ma = g['matches'] if g['matches'] > 0 else 1
+        ro = g['rounds'] if g['rounds'] > 0 else 1
+        de = g['deaths'] if g['deaths'] > 0 else 1
+        g['win_percent'] = f"{round((g['wins']/ma)*100, 1)}%"
+        g['kd'] = round(g['kills']/de, 2)
+        g['adr'] = round(g['damage']/ro, 1)
+        g['acs'] = round(g['score']/ro, 1)
+        h = g['playtime_seconds'] // 3600
+        g['playtime'] = f"{h}h"
+        processed_agents.append(g)
+
+    processed_agents.sort(key=lambda x: x['matches'], reverse=True)
+
+    tier_id = RANK_TO_TIER.get(highest_rank_name, 0)
+    rank_img = f"https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/{tier_id}/largeicon.png"
+    if tier_id == 0:
+        rank_img = "https://media.valorant-api.com/playercards/9fb34440-4f0b-49dc-3cb7-578f797d1000/displayicon.png"
+
+    res_final = {
+        'total': total,
+        'derived': derived,
+        'highest_rank': highest_rank_name,
+        'highest_rank_image': rank_img,
+        'agents': processed_agents
+    }
+    
+    AGGREGATE_CACHE[u_id] = { 'data': res_final, 'expires': time.time() + 300 }
+    return jsonify(res_final)
+
+def process_account(acc):
+    """Worker function to process a single account with fallbacks."""
+    local_total = {
+        'games': 0, 'wins': 0, 'losses': 0,
+        'kills': 0, 'deaths': 0, 'assists': 0,
+        'damage': 0, 'rounds': 0, 'score': 0,
+        'headshots': 0, 'hits_total': 0, 
+        'clutches': 0, 'flawless': 0,
+        'kast_weighted': 0.0, 'dd_weighted': 0.0,
+        'level': 0
+    }
+    local_agents = []
+    best_rank = "Unrated"
+    best_tier = -1
+
+    try:
         if acc.get('type') == 'manual':
             s = acc.get('stats', {})
-            log_debug(f"  [Manual] Processing: {acc.get('name')}")
             local_total['games'] = (s.get('wins', 0) + s.get('losses', 0))
             local_total['wins'] = s.get('wins', 0)
             local_total['losses'] = s.get('losses', 0)
@@ -1264,226 +1422,88 @@ def aggregate_accounts(current_user):
             local_total['assists'] = s.get('assists', 0)
             local_total['damage'] = s.get('damage', 0)
             local_total['rounds'] = s.get('rounds', 0)
-            
-            m_rounds = s.get('rounds', 0)
-            m_acs = s.get('acs', 0)
-            if m_acs > 0:
-                local_total['score'] = (m_acs * m_rounds)
-            else:
-                local_total['score'] = (s.get('damage', 0) * 1.5)
-
-            local_total['kast_weighted'] = (s.get('kast', 0) * m_rounds)
-            
-            m_hits = m_rounds * 10
-            local_total['hits_total'] = m_hits
-            local_total['headshots'] = (s.get('hs', 0) / 100.0) * m_hits
-            
+            r = s.get('rounds', 0) or 1
+            local_total['score'] = (s.get('acs', 200) * r)
+            local_total['kast_weighted'] = (s.get('kast', 75.0) * r)
+            local_total['hits_total'] = r * 10
+            local_total['headshots'] = (s.get('hs', 15.0) / 100.0) * local_total['hits_total']
             return local_total, local_agents, best_rank, best_tier
 
         name = acc.get('name')
         tag = acc.get('tag')
         region = acc.get('region', 'latam')
-        lvl_in = int(acc.get('account_level', 0))
-        local_total['level'] = lvl_in
-        
-        log_debug(f"  [Linked] {name}#{tag} - Fetching data...")
-        
-        # 1. MMR Rank (Peak Rank)
+        local_total['level'] = int(acc.get('account_level', 0))
+
+        # 1. Rank
         mmr_resp = fetch_henrik(f"/v2/mmr/{region}/{name}/{tag}")
         if mmr_resp and mmr_resp.status_code == 200:
-            mmr_data = mmr_resp.json().get('data', {})
-            highest = mmr_data.get('highest_rank', {})
-            best_rank = highest.get('patched_tier', 'Unrated')
-            best_tier = highest.get('tier', 0)
-        
-        # 2. Stats
-        s_data = get_tracker_data(name, tag)
-        p_data = parse_tracker_data(s_data, name, tag) if s_data else None
-        
-        if p_data and p_data.get('stats'):
-            s = p_data['stats']
-            local_total['games'] = s['games']
-            local_total['wins'] = s['wins']
-            local_total['losses'] = s['losses']
-            local_total['kills'] = s['kills']
-            local_total['deaths'] = s['deaths']
-            local_total['assists'] = s['assists']
-            local_total['damage'] = s['damage']
-            local_total['rounds'] = s['rounds']
-            local_total['clutches'] = s['clutches']
-            local_total['flawless'] = s['flawless']
-            local_total['score'] = s['score']
-            local_total['headshots'] = s['headshots']
-            local_total['hits_total'] = (s.get('hits_head',0) + s.get('hits_body',0) + s.get('hits_leg',0))
-            local_total['kast_weighted'] = (s.get('kastValue',0) * s['rounds'])
-            local_total['dd_weighted'] = (s.get('dd', 0) * s['rounds'])
-            
-            agent_data_raw = get_tracker_agents(name, tag)
-            if agent_data_raw:
-                local_agents = parse_agent_segments(agent_data_raw)
-            else:
-                local_agents = get_agent_stats_fallback(name, tag, region=region)
-        else:
-            log_debug(f"    Fallback for {name}#{tag}")
-            m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
-            if m_resp and m_resp.status_code == 200:
-                matches = m_resp.json().get('data', [])
-                fb_agents_map = {}
-                for m in matches:
-                    p = next((x for x in m.get('players', {}).get('all_players', []) 
-                            if x['name'].lower() == name.lower() and x['tag'].lower() == tag.lower()), None)
-                    if p:
-                        ps = p.get('stats', {})
-                        r_p = m.get('metadata', {}).get('rounds_played', 0)
-                        local_total['games'] += 1
-                        local_total['kills'] += ps.get('kills', 0)
-                        local_total['deaths'] += ps.get('deaths', 0)
-                        local_total['assists'] += ps.get('assists', 0)
-                        local_total['damage'] += ps.get('damage', 0)
-                        local_total['rounds'] += r_p
-                        local_total['score'] += ps.get('score', 0)
-                        local_total['headshots'] += ps.get('headshots', 0)
-                        local_total['hits_total'] += (ps.get('headshots', 0) + ps.get('bodyshots', 0) + ps.get('legshots', 0))
-                        
-                        my_t = p.get('team', '').lower()
-                        wt = 'red' if m.get('teams', {}).get('red', {}).get('has_won') else 'blue'
-                        if my_t == wt: local_total['wins'] += 1
-                        else: local_total['losses'] += 1
-                        
-                        char = p.get('character', 'Unknown')
-                        if char not in fb_agents_map:
-                            assets = p.get('assets') or {}
-                            agent_assets = assets.get('agent') or {}
-                            fb_agents_map[char] = {
-                                'name': char, 'icon': agent_assets.get('small'),
-                                'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
-                                'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
-                            }
-                        ag = fb_agents_map[char]
-                        ag['matches'] += 1
-                        ag['kills'] += ps.get('kills', 0)
-                        ag['deaths'] += ps.get('deaths', 0)
-                        ag['damage'] += ps.get('damage', 0)
-                        ag['rounds'] += r_p
-                        ag['score'] += ps.get('score', 0)
-                        ag['playtime_seconds'] += (r_p * 100)
-                        if my_t == wt: ag['wins'] += 1
-                local_agents = list(fb_agents_map.values())
-        
-        return local_total, local_agents, best_rank, best_tier
+            m_data = mmr_resp.json().get('data', {})
+            h = m_data.get('highest_rank', {})
+            best_rank = h.get('patched_tier', 'Unrated')
+            best_tier = h.get('tier', -1)
 
-    try:
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            results = list(executor.map(process_account, accounts))
-        
-        for l_total, l_agents, b_rank, b_tier in results:
-            # Aggregate totals
-            for key in ['games', 'wins', 'losses', 'kills', 'deaths', 'assists', 'damage', 'rounds', 'score', 'headshots', 'hits_total', 'clutches', 'flawless']:
-                total[key] += l_total[key]
-            
-            total['kast_weighted'] += l_total.get('kast_weighted', 0.0)
-            total['dd_weighted'] += l_total.get('dd_weighted', 0.0)
-            if l_total['level'] > highest_level: highest_level = l_total['level']
-            
-            # Aggregate rank
-            if b_tier > RANK_TO_TIER.get(highest_rank_name, 0):
-                highest_rank_name = b_rank
-            
-            # Aggregate agents
-            for a in l_agents:
-                aname = a['name']
-                if aname not in global_agents:
-                    global_agents[aname] = {
-                        'name': aname, 'icon': a['icon'],
-                        'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
-                        'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
-                    }
-                g = global_agents[aname]
-                g['matches'] += a['matches']
-                g['wins'] += a['wins']
-                g['kills'] += a.get('kills', 0)
-                g['deaths'] += a.get('deaths', 0)
-                g['score'] += a.get('score', 0)
-                g['rounds'] += a.get('rounds', 0)
-                g['damage'] += a.get('damage', 0)
-                g['playtime_seconds'] += a.get('playtime_seconds', 0)
+        # 2. Tracker.gg Stats (Lifetime)
+        t_data = get_tracker_data(name, tag)
+        if t_data:
+            p = parse_tracker_data(t_data, name, tag)
+            if p and p.get('stats'):
+                s = p['stats']
+                for k in local_total:
+                    if k in s: local_total[k] = s[k]
+                local_total['hits_total'] = s.get('hits_head',0) + s.get('hits_body',0) + s.get('hits_leg',0)
+                local_total['kast_weighted'] = s.get('kastValue',0) * s.get('rounds',0)
+                local_total['dd_weighted'] = s.get('dd',0) * s.get('rounds',0)
+                
+                # Agents
+                a_raw = get_tracker_agents(name, tag)
+                local_agents = parse_agent_segments(a_raw) if a_raw else get_agent_stats_fallback(name, tag, region)
+                return local_total, local_agents, best_rank, best_tier
+
+        # 3. Henrik Fallback (Recent)
+        m_resp = fetch_henrik(f"/v3/matches/{region}/{name}/{tag}?mode=competitive&size=20")
+        if m_resp and m_resp.status_code == 200:
+            matches = m_resp.json().get('data', [])
+            fb_agents = {}
+            for m in matches:
+                p = next((x for x in m.get('players', {}).get('all_players', []) if x['name'].lower()==name.lower() and x['tag'].lower()==tag.lower()), None)
+                if p:
+                    ps = p.get('stats', {})
+                    r_p = m.get('metadata', {}).get('rounds_played', 0)
+                    local_total['games'] += 1
+                    local_total['kills'] += ps.get('kills', 0)
+                    local_total['deaths'] += ps.get('deaths', 0)
+                    local_total['assists'] += ps.get('assists', 0)
+                    local_total['damage'] += ps.get('damage', 0)
+                    local_total['rounds'] += r_p
+                    local_total['score'] += ps.get('score', 0)
+                    local_total['headshots'] += ps.get('headshots', 0)
+                    local_total['hits_total'] += (ps.get('headshots',0)+ps.get('bodyshots',0)+ps.get('legshots',0))
+                    
+                    t_win = 'red' if m.get('teams',{}).get('red',{}).get('has_won') else 'blue'
+                    if p.get('team','').lower() == t_win: local_total['wins'] += 1
+                    else: local_total['losses'] += 1
+                    
+                    char = p.get('character', 'Unknown')
+                    if char not in fb_agents:
+                        fb_agents[char] = {
+                            'name': char, 'icon': p.get('assets',{}).get('agent',{}).get('small'),
+                            'matches': 0, 'wins': 0, 'kills': 0, 'deaths': 0,
+                            'score': 0, 'rounds': 0, 'damage': 0, 'playtime_seconds': 0
+                        }
+                    ga = fb_agents[char]
+                    ga['matches'] += 1
+                    ga['kills'] += ps.get('kills', 0)
+                    ga['deaths'] += ps.get('deaths', 0)
+                    ga['damage'] += ps.get('damage', 0)
+                    ga['rounds'] += r_p
+                    ga['score'] += ps.get('score', 0)
+                    if p.get('team','').lower() == t_win: ga['wins'] += 1
+            local_agents = list(fb_agents.values())
+
     except Exception as e:
-        import traceback
-        err_msg = f"CRITICAL ERROR IN AGGREGATION LOOP: {e}\n{traceback.format_exc()}"
-        log_debug(err_msg)
-        return jsonify({'error': 'Error interno al procesar estadísticas', 'detail': str(e)}), 500
-            
-    # Set final level
-    total['level'] = highest_level
-    
-    # Process agents aggregation
-    processed_agents = []
-    for aname, g in global_agents.items():
-        rounds = g['rounds'] if g['rounds'] > 0 else 1
-        deaths = g['deaths'] if g['deaths'] > 0 else 1
-        matches = g['matches'] if g['matches'] > 0 else 1
-        
-        # Calculate Rates
-        g['win_percent'] = f"{round(float(g['wins'] / matches) * 100.0, 1)}%"
-        g['kd'] = round(float(g['kills'] / deaths), 2)
-        g['adr'] = round(float(g['damage'] / rounds), 1)
-        g['acs'] = round(float(g['score'] / rounds), 1)
-        
-        # Playtime format (approximate)
-        hours = g['playtime_seconds'] // 3600
-        g['playtime'] = f"{hours}h" if hours > 0 else "0h"
-        
-        processed_agents.append(g)
-    
-    # Sort by matches
-    processed_agents.sort(key=lambda x: x['matches'], reverse=True)
-    
-    log_debug(f">>> FINAL TOTALS: Agents Aggregated: {len(processed_agents)}")
-    log_debug(f"    K/D/A: {total['kills']} / {total['deaths']} / {total['assists']}")
-    
-    # ... (rest of function unchanged, tier_id logic follows)
-    
-    # Get rank icon
-    tier_id = RANK_TO_TIER.get(highest_rank_name, 0)
-    highest_rank_image = f"https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/{tier_id}/largeicon.png"
-    if tier_id == 0:
-        highest_rank_image = "https://media.valorant-api.com/playercards/9fb34440-4f0b-49dc-3cb7-578f797d1000/displayicon.png"
+        log_debug(f"Process account failed for {acc.get('name')}: {e}")
 
-    # Derived stats
-    games = total['games'] if total['games'] > 0 else 1
-    rounds_total = total['rounds'] if total['rounds'] > 0 else 1
-    deaths_total = total['deaths'] if total['deaths'] > 0 else 1
-    hits = total['hits_total'] if total['hits_total'] > 0 else 1
-    
-    derived = {
-        'winRate': round(float(total['wins'] / games) * 100, 1),
-        'kd': round(float(total['kills'] / deaths_total), 2),
-        'kpr': round(float(total['kills'] / rounds_total), 2),
-        'adr': round(float(total['damage'] / rounds_total), 1),
-        'acs': round(float(total['score'] / rounds_total), 1),
-        'hs': round(float(total['headshots'] / hits) * 100, 1) if total['headshots'] > 0 else 0.0,
-        'kast': round(float(total['kast_weighted'] / rounds_total), 1),
-        'kad': round(float(total['kills'] + total['assists']) / deaths_total, 2),
-        'dd': round(float(total['dd_weighted'] / rounds_total), 1)
-    }
-
-    res_final = {
-        'total': total,
-        'derived': derived,
-        'highest_rank': highest_rank_name,
-        'highest_rank_image': highest_rank_image,
-        'agents': processed_agents
-    }
-    
-    # Store in cache for 5 minutes
-    AGGREGATE_CACHE[u_id] = {
-        'data': res_final,
-        'expires': time.time() + 300
-    }
-    
-    return jsonify(res_final)
-
-@app.route('/api/debug/db')
+    return local_total, local_agents, best_rank, best_tier
 def debug_db():
     db_url = os.environ.get('DATABASE_URL')
     status = {
