@@ -857,14 +857,16 @@ def parse_tracker_data(t_data, name, tag, rank="Career Total", tier_id=0):
 HENRIK_API_URL = 'https://api.henrikdev.xyz/valorant'
 
 def fetch_henrik(endpoint):
+    # Ensure name/tag in endpoint are encoded if they are part of the path
+    # However, endpoint is already a full path like /v1/account/name/tag
+    # We should probably handle encoding at the call site or here
     url = f"{HENRIK_API_URL}{endpoint}"
-    # Use headers with modern API keys if needed
     headers = {"Authorization": HENRIK_API_KEY} if HENRIK_API_KEY else {}
     try:
         log_debug(f"Fetching HenrikDev: {endpoint} (timeout={API_TIMEOUT}s)")
         return requests.get(url, headers=headers, timeout=API_TIMEOUT)
     except Exception as e:
-        log_debug(f"HenrikDev API Error: {e}")
+        log_debug(f"HenrikDev API Connection Error: {e}")
         return None
 
 def get_account_region(name, tag):
@@ -925,11 +927,28 @@ def get_stats_dict(name, tag):
 
 @app.route('/api/v1/account/<name>/<tag>')
 def get_v1_account(name, tag):
-    print(f"Validating account {name}#{tag}...", flush=True)
-    resp = fetch_henrik(f"/v1/account/{name}/{tag}")
+    # Re-encode for the actual API call
+    safe_name = urllib.parse.quote(name)
+    safe_tag = urllib.parse.quote(tag)
+    print(f"Validating account {name}#{tag} (safe: {safe_name}#{safe_tag})...", flush=True)
+    resp = fetch_henrik(f"/v1/account/{safe_name}/{safe_tag}")
     if resp and resp.status_code == 200:
         return jsonify(resp.json().get('data', {}))
-    return jsonify({'error': 'Account not found'}), 404
+    
+    err_msg = 'Account not found'
+    status_code = 404
+    if resp:
+        if resp.status_code == 429:
+            err_msg = 'API Rate Limited (Henrik). Try again in a minute.'
+            status_code = 429
+        elif resp.status_code == 403:
+            err_msg = 'API Access Forbidden (Key error or restriction).'
+            status_code = 403
+        else:
+            err_msg = f'HenrikDev Error: {resp.status_code}'
+            status_code = resp.status_code
+
+    return jsonify({'error': err_msg}), status_code
 
 @app.route('/api/profile/<name>/<tag>', methods=['GET'])
 def get_profile(name, tag):
