@@ -1029,20 +1029,16 @@ def get_v1_account(name, tag):
             'card': {'small': metadata.get('avatarUrl')}
         })
 
-    # Error reporting
-    err_msg = 'Account not found'
-    status_code = 404
-    if resp_v2: # Use V2 response for more accurate status
-        if resp_v2.status_code == 429:
-            err_msg = 'API Rate Limited (Henrik). Try again in a minute.'
-            status_code = 429
-        elif resp_v2.status_code == 403:
-            err_msg = 'API Access Forbidden.'
-            status_code = 403
-        else:
-            err_msg = f'Account not found (V2 Code: {resp_v2.status_code})'
-
-    return jsonify({'error': err_msg}), status_code
+    # Stage 4: Synthetic Fallback (Ensures user can at least add the account)
+    log_debug(f"Lookup: All APIs failed for {name}#{tag}. Returning synthetic fallback.")
+    return jsonify({
+        'puuid': f"synthetic-{hashlib.md5((name+tag).encode()).hexdigest()}",
+        'name': name,
+        'tag': tag,
+        'account_level': 0,
+        'region': 'na', # Default to NA, user can maybe change or we detect later
+        'card': {'small': 'https://media.valorant-api.com/playercards/9fb34440-4f0b-49dc-3cb7-578f797d1000/displayicon.png'}
+    })
 
 @app.route('/api/profile/<name>/<tag>', methods=['GET'])
 def get_profile(name, tag):
