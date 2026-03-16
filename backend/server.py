@@ -9,6 +9,7 @@ import time
 import random
 import threading
 import urllib.parse
+print("[STARTUP] server.py loading...", flush=True)
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import os
@@ -161,9 +162,25 @@ def init_db():
         # SQLite migrations
         try:
             cursor.execute("SELECT email_hash FROM users LIMIT 1")
+        except Exception as e:
+            log_debug(f"Migrating SQLite (email_hash): {e}")
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN email_hash TEXT UNIQUE")
+                conn.commit()
+            except:
+                pass
+
+    # Ensure accounts have necessary columns (migration safety)
+    if is_postgres:
+        try:
+            cursor.execute("SELECT puuid FROM valorant_accounts LIMIT 1")
         except:
-            log_debug("Migrating SQLite: adding email_hash column...")
-            cursor.execute("ALTER TABLE users ADD COLUMN email_hash TEXT UNIQUE")
+            conn.rollback()
+            log_debug("Migrating Postgres: valorant_accounts columns...")
+            cursor.execute("ALTER TABLE valorant_accounts ADD COLUMN puuid TEXT")
+            cursor.execute("ALTER TABLE valorant_accounts ADD COLUMN account_level INTEGER DEFAULT 0")
+            cursor.execute("ALTER TABLE valorant_accounts ADD COLUMN region TEXT DEFAULT 'latam'")
+            cursor.execute("ALTER TABLE valorant_accounts ADD COLUMN card_small TEXT")
             conn.commit()
 
     cursor.execute(f'''
@@ -1398,3 +1415,5 @@ if __name__ == '__main__':
     print(f"VALORANT STATS (HENRIK) SERVER - Listening on port {port}")
     print("="*50)
     app.run(host='0.0.0.0', port=port)
+
+print("[STARTUP] server.py loaded successfully.", flush=True)
