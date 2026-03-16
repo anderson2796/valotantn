@@ -101,59 +101,57 @@ class SecurityManager:
 
 security = SecurityManager()
 
+class PgConnectionWrapper:
+    """Wraps a psycopg2 connection to provide SQLite-like .execute() interface."""
+    def __init__(self, pg_conn):
+        self._conn = pg_conn
+
+    def execute(self, sql, params=()):
+        sql = sql.replace('?', '%s')
+        is_select = 'SELECT' in sql.upper()
+        has_returning = 'RETURNING' in sql.upper()
+        if is_select and not has_returning:
+            cur = self._conn.cursor(cursor_factory=RealDictCursor)
+        else:
+            cur = self._conn.cursor()
+        cur.execute(sql, params)
+        if not is_select and not has_returning:
+            self._conn.commit()
+        return cur
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        self._conn.close()
+
+    def cursor(self):
+        return self._conn.cursor(cursor_factory=RealDictCursor)
+
+
 def get_db_connection():
-    # 1. Detect environment safely
-    is_render = 'RENDER' in os.environ
-    if not is_render:
-        try:
-            from flask import has_request_context, request
-            if has_request_context():
-                is_render = request.host and ('.onrender.com' in request.host)
-        except:
-            pass
-            
     db_url = os.environ.get('DATABASE_URL')
-    
-    if is_render:
-        if not db_url:
-            log_debug("CRITICAL: DATABASE_URL is missing on Render. Persistence will NOT work.")
-            # We allow it to fallback to SQLite locally, but on Render it MUST fail or warn
-        if not HAS_POSTGRES:
-            log_debug("CRITICAL: psycopg2-binary is missing. Cannot use Postgres.")
 
     if db_url and HAS_POSTGRES:
         try:
-            # Fix postgres:// URLs
             if db_url.startswith("postgres://"):
                 db_url = db_url.replace("postgres://", "postgresql://", 1)
-                
-            log_debug(f"Connecting to PostgreSQL (is_render={is_render})...")
-            # 8s timeout for connection
-            conn = psycopg2.connect(db_url, connect_timeout=8)
-            
-            if not hasattr(conn, 'execute'):
-                def pg_execute(sql, params=()):
-                    sql = sql.replace('?', '%s')
-                    is_select = 'SELECT' in sql.upper()
-                    has_returning = 'RETURNING' in sql.upper()
-                    cur = conn.cursor(cursor_factory=RealDictCursor) if (is_select and not has_returning) else conn.cursor()
-                    cur.execute(sql, params)
-                    if not is_select and not has_returning:
-                        conn.commit()
-                    return cur
-                conn.execute = pg_execute
+            log_debug("Connecting to PostgreSQL...")
+            raw_conn = psycopg2.connect(db_url, connect_timeout=8)
             log_debug("Postgres connected successfully")
-            return conn, True
+            return PgConnectionWrapper(raw_conn), True
         except Exception as e:
             log_debug(f"Postgres connection failed: {e}")
+            is_render = 'RENDER' in os.environ
             if is_render:
-                # Forced failure to avoid transient SQLite mode
-                raise ConnectionError(f"Database unavailable on Render: {e}")
-    
+                raise ConnectionError(f"Database unavailable: {e}")
+
     # Local SQLite Fallback
     log_debug("Using SQLite fallback.")
-    db_path = os.path.join(BASE_DIR, 'backend', 'database.db') if is_render else 'database.db'
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn, False
 
