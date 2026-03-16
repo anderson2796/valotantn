@@ -65,6 +65,10 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro
 HENRIK_API_KEY = os.environ.get('HENRIK_API_KEY', '')
 API_TIMEOUT = 10 # Optimized: stay within Render 30s limit
 
+# Global Caches (Simple in-memory)
+REGION_CACHE = {} # { "name#tag": "region" }
+AGGREGATE_CACHE = {} # { "user_id": { "data": ..., "expires": ... } }
+
 # Security Manager for sensitive data encryption
 class SecurityManager:
     def __init__(self):
@@ -100,19 +104,19 @@ security = SecurityManager()
 
 def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
+    is_render = 'RENDER' in os.environ or '.onrender.com' in request.host_url
+    
     if db_url and HAS_POSTGRES:
         try:
-            # Fix postgres:// URLs (Render/Heroku compatible)
             if db_url.startswith("postgres://"):
                 db_url = db_url.replace("postgres://", "postgresql://", 1)
                 
-            log_debug("Connecting to PostgreSQL (with 10s timeout)...")
-            conn = psycopg2.connect(db_url, connect_timeout=10)
+            log_debug(f"Connecting to PostgreSQL (is_render={is_render})...")
+            # Increased timeout for connection to 15s for Neon stability
+            conn = psycopg2.connect(db_url, connect_timeout=15)
             
-            # Add a row-like access for postgres
             if not hasattr(conn, 'execute'):
                 def pg_execute(sql, params=()):
-                    # Standardize placeholders and handle RETURNING
                     sql = sql.replace('?', '%s')
                     is_select = 'SELECT' in sql.upper()
                     has_returning = 'RETURNING' in sql.upper()
@@ -125,10 +129,13 @@ def get_db_connection():
             log_debug("Postgres connected successfully")
             return conn, True
         except Exception as e:
-            log_debug(f"Postgres connect failed (falling back to SQLite): {e}")
+            log_debug(f"Postgres connect failed: {e}")
+            if is_render:
+                print(f"CRITICAL: Postgres failed on Render! Cannot fallback to SQLite safely.", flush=True)
+                # We still return for now but with a big warning in logs
     
-    # Fallback to SQLite
-    log_debug("Using SQLite fallback.")
+    # Fallback to SQLite (Only for local dev)
+    log_debug("Using SQLite fallback (DANGEROUS IN PROD).")
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn, False
@@ -359,21 +366,21 @@ def register():
     
     conn = get_db()
     try:
+        log_debug(f"Attempting to register user: {email_hash[:10]}...")
         conn.execute(
             "INSERT INTO users (email, email_hash, password_hash) VALUES (?, ?, ?)", 
             (encrypted_email, email_hash, hashed_password)
         )
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({'error': 'Email already registered'}), 400
+        if hasattr(conn, 'commit'): conn.commit()
+        log_debug("User registration committed to DB.")
     except Exception as e:
-        # For Postgres, catch duplicate key error
-        if "unique constraint" in str(e).lower():
+        err_str = str(e).lower()
+        if "unique" in err_str or "already registered" in err_str:
             conn.close()
-            return jsonify({'error': 'Email already registered'}), 400
+            return jsonify({'error': 'Email ya registrado.'}), 400
+        log_debug(f"Registration Error: {e}")
         conn.close()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error en base de datos: {str(e)}'}), 500
     
     conn.close()
     return jsonify({'message': 'User created successfully'}), 201
@@ -391,10 +398,13 @@ def login():
     
     conn = get_db()
     # Search by hash for performance and security
+    log_debug(f"Login attempt for hash: {email_hash[:10]}...")
     user = conn.execute("SELECT * FROM users WHERE email_hash = ?", (email_hash,)).fetchone()
     conn.close()
     
-    if user and check_password_hash(user['password_hash'], password):
+    if not user:
+        log_debug("Login failed: User record not found.")
+        return jsonify({'error': 'Credenciales inválidas'}), 401
         token = jwt.encode({
             'user_id': user['id'],
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
@@ -886,21 +896,27 @@ def fetch_henrik(endpoint):
 
 def get_account_region(name, tag):
     """Determine region for the account using HenrikDev v1/account or v2 fallback"""
+    cache_key = f"{name.lower()}#{tag.lower()}"
+    if cache_key in REGION_CACHE:
+        return REGION_CACHE[cache_key]
+        
     safe_name = urllib.parse.quote(name)
     safe_tag = urllib.parse.quote(tag)
     
+    region = 'na'
     # Try V1
     resp = fetch_henrik(f"/v1/account/{safe_name}/{safe_tag}")
     if resp and resp.status_code == 200:
-        return resp.json().get('data', {}).get('region', 'na')
-    
-    # Try V2 fallback
-    log_debug(f"Region lookup: V1 failed ({resp.status_code if resp else 'No Resp'}), trying V2...")
-    resp = fetch_henrik(f"/v2/account/{safe_name}/{safe_tag}")
-    if resp and resp.status_code == 200:
-        return resp.json().get('data', {}).get('region', 'na')
-        
-    return 'na' # Default
+        region = resp.json().get('data', {}).get('region', 'na')
+    else:
+        # Try V2 fallback
+        log_debug(f"Region lookup: V1 failed ({resp.status_code if resp else 'No Resp'}), trying V2...")
+        resp = fetch_henrik(f"/v2/account/{safe_name}/{safe_tag}")
+        if resp and resp.status_code == 200:
+            region = resp.json().get('data', {}).get('region', 'na')
+            
+    REGION_CACHE[cache_key] = region
+    return region
 
 def get_stats_dict(name, tag):
     # Strategy 1: Try Tracker.gg (Lifetime)
@@ -1193,7 +1209,17 @@ def get_profile(name, tag):
 
 
 @app.route('/api/aggregate', methods=['POST'])
-def aggregate_accounts():
+@token_required
+def aggregate_accounts(current_user):
+    # Check cache first (5 minute TTL)
+    u_id = current_user['id']
+    now = time.time()
+    if u_id in AGGREGATE_CACHE:
+        entry = AGGREGATE_CACHE[u_id]
+        if now < entry['expires']:
+            log_debug(f"Serving AGGREGATE from cache for user {u_id}")
+            return jsonify(entry['data'])
+
     data_in = request.json
     accounts = data_in.get('accounts', [])
     log_debug(f"\n>>> AGGREGATION START: Processing {len(accounts)} entries")
@@ -1441,13 +1467,21 @@ def aggregate_accounts():
         'dd': round(float(total['dd_weighted'] / rounds_total), 1)
     }
 
-    return jsonify({
+    res_final = {
         'total': total,
         'derived': derived,
         'highest_rank': highest_rank_name,
         'highest_rank_image': highest_rank_image,
         'agents': processed_agents
-    })
+    }
+    
+    # Store in cache for 5 minutes
+    AGGREGATE_CACHE[u_id] = {
+        'data': res_final,
+        'expires': time.time() + 300
+    }
+    
+    return jsonify(res_final)
 
 @app.route('/api/debug/db')
 def debug_db():
