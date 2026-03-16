@@ -544,7 +544,8 @@ async function renderAggregateStats() {
         const response = await fetch(`${BASE_URL}/aggregate?t=${Date.now()}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({
                 accounts: [
