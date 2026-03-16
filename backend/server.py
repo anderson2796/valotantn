@@ -62,7 +62,8 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro
 
 # Configuration
 HENRIK_API_KEY = os.environ.get('HENRIK_API_KEY', '')
-API_TIMEOUT = 10 # Optimized: stay within Render 30s limit
+TRN_API_KEY = os.environ.get('TRN_API_KEY', '')
+API_TIMEOUT = 10
 
 # Global Caches (Simple in-memory)
 REGION_CACHE = {} # { "name#tag": "region" }
@@ -577,6 +578,8 @@ def get_tracker_data(name, tag):
         'Origin': 'https://tracker.gg',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
+    if TRN_API_KEY:
+        headers['TRN-Api-Key'] = TRN_API_KEY
     
     try:
         # 1. Primary Attempt: Direct Playlist Segments (Best for lifetime totals)
