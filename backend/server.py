@@ -63,6 +63,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'el_secreto_super_seguro
 # Configuration
 HENRIK_API_KEY = os.environ.get('HENRIK_API_KEY', '')
 TRN_API_KEY = os.environ.get('TRN_API_KEY', '')
+SCRAPER_API_KEY = os.environ.get('SCRAPER_API_KEY', '')
 API_TIMEOUT = 10
 
 # Global Caches (Simple in-memory)
@@ -583,13 +584,18 @@ def get_tracker_data(name, tag):
     
     try:
         # 1. Primary Attempt: Direct Playlist Segments (Best for lifetime totals)
-        # This endpoint specifically returns the aggregated data for a playlist
         segments_url = f"https://api.tracker.gg/api/v2/valorant/standard/profile/riot/{encoded_name}%23{encoded_tag}/segments/playlist?playlist=competitive"
+        
+        # Route through ScraperAPI if key is provided (Bypasses Cloudflare on Datacenters)
+        request_url = segments_url
+        if SCRAPER_API_KEY:
+            request_url = f"http://api.scraperapi.com?api_key={SCRAPER_API_KEY}&url={urllib.parse.quote(segments_url)}"
+            
         print(f"Tracker.gg: Fetching lifetime segments for {name}#{tag}...", flush=True)
         if HAS_CURL_CFFI:
-            resp = c_requests.get(segments_url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
+            resp = c_requests.get(request_url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
         else:
-            resp = c_requests.get(segments_url, headers=headers, timeout=API_TIMEOUT)
+            resp = c_requests.get(request_url, headers=headers, timeout=API_TIMEOUT)
         if resp.status_code == 200:
             data = resp.json()
             if data.get('data'):
@@ -599,10 +605,15 @@ def get_tracker_data(name, tag):
         # 2. Secondary Attempt: Overview
         print(f"Tracker.gg: Direct segments failed or empty (Code: {resp.status_code}). Trying profile overview...", flush=True)
         url = f"https://api.tracker.gg/api/v2/valorant/standard/profile/riot/{encoded_name}%23{encoded_tag}"
+        
+        request_url_overview = url
+        if SCRAPER_API_KEY:
+            request_url_overview = f"http://api.scraperapi.com?api_key={SCRAPER_API_KEY}&url={urllib.parse.quote(url)}"
+            
         if HAS_CURL_CFFI:
-            resp = c_requests.get(url, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
+            resp = c_requests.get(request_url_overview, headers=headers, impersonate="chrome120", timeout=API_TIMEOUT)
         else:
-            resp = c_requests.get(url, headers=headers, timeout=API_TIMEOUT)
+            resp = c_requests.get(request_url_overview, headers=headers, timeout=API_TIMEOUT)
         if resp.status_code == 200:
             return resp.json()
         
@@ -624,10 +635,15 @@ def get_tracker_agents(name, tag):
     }
     try:
         log_debug(f"Fetching Tracker.gg for {name}#{tag} (timeout={API_TIMEOUT}s)")
+        
+        request_url = url
+        if SCRAPER_API_KEY:
+            request_url = f"http://api.scraperapi.com?api_key={SCRAPER_API_KEY}&url={urllib.parse.quote(url)}"
+            
         if HAS_CURL_CFFI:
-            response = c_requests.get(url, headers=headers, impersonate="chrome110", timeout=API_TIMEOUT)
+            response = c_requests.get(request_url, headers=headers, impersonate="chrome110", timeout=API_TIMEOUT)
         else:
-            response = c_requests.get(url, headers=headers, timeout=API_TIMEOUT)
+            response = c_requests.get(request_url, headers=headers, timeout=API_TIMEOUT)
         
         if response.status_code == 200:
             return response.json()
@@ -1280,21 +1296,27 @@ def get_profile(name, tag):
 @token_required
 def aggregate_accounts(current_user):
     u_id = current_user['id']
+    data_in = request.json
+    accounts = data_in.get('accounts', [])
+    
+    import json
+    # Create a unique cache key based on u_id and the exact accounts payload
+    payload_hash = hashlib.md5(json.dumps(accounts, sort_keys=True).encode()).hexdigest()
+    cache_key = f"{u_id}_{payload_hash}"
+    
     now = time.time()
-    if u_id in AGGREGATE_CACHE:
-        entry = AGGREGATE_CACHE[u_id]
+    if cache_key in AGGREGATE_CACHE:
+        entry = AGGREGATE_CACHE[cache_key]
         if now < entry['expires']:
             cached = entry['data']
             # Don't serve empty cache
             if cached.get('total', {}).get('games', 0) > 0:
-                log_debug(f"Serving aggregate from cache for user {u_id}")
+                log_debug(f"Serving aggregate from cache for key {cache_key}")
                 return jsonify(cached)
             else:
-                log_debug(f"Cache for user {u_id} is empty/stale, re-fetching")
-                del AGGREGATE_CACHE[u_id]
+                log_debug(f"Cache for key {cache_key} is empty/stale, re-fetching")
+                del AGGREGATE_CACHE[cache_key]
 
-    data_in = request.json
-    accounts = data_in.get('accounts', [])
     log_debug(f"AGGREGATION START: {len(accounts)} accounts")
     
     total = {
@@ -1412,7 +1434,7 @@ def aggregate_accounts(current_user):
         'agents': processed_agents
     }
     
-    AGGREGATE_CACHE[u_id] = { 'data': res_final, 'expires': time.time() + 300 }
+    AGGREGATE_CACHE[cache_key] = { 'data': res_final, 'expires': time.time() + 300 }
     return jsonify(res_final)
 
 def process_account(acc):
