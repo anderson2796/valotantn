@@ -500,12 +500,12 @@ function renderManagedAccounts() {
                 <strong>${acc.name}#${acc.tag}</strong>
                 <p>Nivel ${acc.account_level}</p>
             </div>
-            <i class="fas fa-times acc-remove" data-puuid="${acc.puuid}"></i>
+            <i class="fas fa-times acc-remove" data-id="${acc.id}"></i>
         `;
 
         card.addEventListener('click', (e) => {
             if (e.target.classList.contains('acc-remove')) {
-                removeAccount(acc.puuid);
+                removeAccount(acc.id);
             } else {
                 selectAccount(acc.puuid);
             }
@@ -515,13 +515,17 @@ function renderManagedAccounts() {
     });
 }
 
-async function removeAccount(puuid) {
+async function removeAccount(id) {
     try {
-        await apiFetch(`/user/accounts/${puuid}`, { method: 'DELETE' });
-        accounts = accounts.filter(a => a.puuid !== puuid);
+        const accountToDelete = accounts.find(a => a.id === id);
+        const puuid = accountToDelete ? accountToDelete.puuid : null;
+
+        await apiFetch(`/user/accounts/${id}`, { method: 'DELETE' });
+        accounts = accounts.filter(a => a.id !== id);
         aggregateCache = null; // Invalidate cache
         renderManagedAccounts();
-        if (activeAccountPuuid === puuid) {
+        
+        if (puuid && activeAccountPuuid === puuid) {
             activeAccountPuuid = null;
             if (accounts.length > 0) selectAccount(accounts[0].puuid);
             else showTab('accounts');
